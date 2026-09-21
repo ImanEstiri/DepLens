@@ -8,5 +8,7 @@
     <File Path="tree-view.bat" />
   </Folder>
   <Folder Name="/src/" />
-  <Folder Name="/src/Core/" />
+  <Folder Name="/src/Core/">
+    <Project Path="src/Core/ImanSoftware.DepLens.Abstractions/ImanSoftware.DepLens.Abstractions.csproj" Id="5ff09ffc-c08f-4c82-8c98-0bcc7f40b501" />
+  </Folder>
 </Solution>
