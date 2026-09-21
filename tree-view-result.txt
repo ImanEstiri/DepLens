@@ -1,0 +1,17 @@
+Folder PATH listing for volume Local Disk
+Volume serial number is C0AD-37BC
+G:.
+    .editorconfig
+    .gitattributes
+    .gitignore
+    DepLens.slnx
+    Directory.Build.props
+    Directory.Packages.props
+    LICENSE.txt
+    nuget.config
+    project-code-dump.bat
+    tree-view-result.txt
+    tree-view.bat
+    
+No subfolders exist 
+
