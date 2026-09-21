@@ -10,5 +10,6 @@
   <Folder Name="/src/" />
   <Folder Name="/src/Core/">
     <Project Path="src/Core/ImanSoftware.DepLens.Abstractions/ImanSoftware.DepLens.Abstractions.csproj" Id="5ff09ffc-c08f-4c82-8c98-0bcc7f40b501" />
+    <Project Path="src/Core/ImanSoftware.DepLens.Core/ImanSoftware.DepLens.Core.csproj" Id="792bea09-74c3-4a74-ba06-7426283e2f28" />
   </Folder>
 </Solution>
