@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\ImanSoftware.DepLens.Abstractions\ImanSoftware.DepLens.Abstractions.csproj" />
+  </ItemGroup>
+
 </Project>
