@@ -1,10 +1,10 @@
 <Solution>
   <Folder Name="/Solution Items/">
     <File Path=".editorconfig" />
+    <File Path="code-dump.bat" />
     <File Path="Directory.Build.props" />
     <File Path="Directory.Packages.props" />
     <File Path="nuget.config" />
-    <File Path="project-code-dump.bat" />
     <File Path="tree-view.bat" />
   </Folder>
   <Folder Name="/src/" />

@@ -21,7 +21,7 @@ set "C_OK=%ESC%[92m"
 REM ===================== تنظیمات =====================
 set "ROOT=%~dp0"
 set "ROOT=%ROOT:~0,-1%"
-set "OUT=%ROOT%\project-code-dump-result.md"
+set "OUT=%ROOT%\code-dump-result.md"
 
 set "EXTENSIONS=.razor .css .cs .js .ts .html .cshtml .json .scss .less .xaml .config .csproj"
 set "EXCLUDE_DIRS=\bin\ \obj\ \node_modules\ \.git\ \.vs\ \.idea\ \wwwroot\lib\"
