@@ -4,6 +4,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageVersion Include="ImanSoftware.OutCome" Version="1.0.3" />
+    <PackageVersion Include="ImanSoftware.FileStorage" Version="1.0.1" />
     <PackageVersion Include="ImanSoftware.Logging" Version="1.0.0" />
     <PackageVersion Include="ImanSoftware.Extensions" Version="1.0.4" />
     <PackageVersion Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.11" />
