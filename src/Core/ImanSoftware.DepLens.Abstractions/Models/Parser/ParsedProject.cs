@@ -4,4 +4,5 @@ public sealed record ParsedProject(
     IReadOnlyList<string> TargetFrameworks,
     IReadOnlyList<RawProjectReference> ProjectReferences,
     IReadOnlyList<PackageDependency> PackageReferences,
-    bool? ManagePackageVersionsCentrallyOverride) : IParsedContent;
+    bool? ManagePackageVersionsCentrallyOverride,
+    bool EffectiveManagePackageVersionsCentrally) : IParsedContent;
