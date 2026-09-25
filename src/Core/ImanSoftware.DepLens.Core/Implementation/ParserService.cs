@@ -12,7 +12,7 @@ internal sealed class ParserService : IParserService
         @"^Project\(""\{[^}]+\}""\)\s*=\s*""[^""]+"",\s*""(?<path>[^""]+)"",\s*""\{[^}]+\}""",
         RegexOptions.Compiled);
 
-    public Task<Outcome<ParsedFile>> ParseAsync(DiscoveredFile file)
+    public Task<Outcome<ParsedFile>> ParseAsync(DiscoveredFile file, ProjectContext? context = null)
     {
         try
         {
@@ -20,7 +20,7 @@ internal sealed class ParserService : IParserService
             {
                 FileType.SolutionClassic => ParseSolutionClassic(file.RawContent),
                 FileType.SolutionXml => ParseSolutionXml(file.RawContent),
-                FileType.Project => ParseProject(file.RawContent),
+                FileType.Project => ParseProject(file.RawContent, context),
                 FileType.DirectoryPackagesProps => ParsePackagesProps(file.RawContent),
                 _ => throw new NotSupportedException($"Unsupported file type: {file.FileType}")
             };
@@ -32,7 +32,7 @@ internal sealed class ParserService : IParserService
             return Task.FromResult(Outcome.Failure<ParsedFile>(new OutcomeError(
                 $"Failed to parse '{file.FullPath}': {ex.Message}",
                 "PARSE_FAILED",
-                OutcomeErrorType.Failure))); 
+                OutcomeErrorType.Failure)));
         }
     }
 
@@ -70,7 +70,7 @@ internal sealed class ParserService : IParserService
         return new ParsedSolution(projectPaths);
     }
 
-    private static ParsedProject ParseProject(string raw)
+    private static ParsedProject ParseProject(string raw, ProjectContext? context)
     {
         var doc = XDocument.Parse(raw);
         var root = doc.Root ?? throw new InvalidOperationException("Missing root <Project> element.");
@@ -84,20 +84,51 @@ internal sealed class ParserService : IParserService
             .Select(path => new RawProjectReference(path!))
             .ToList();
 
+        var localOverride = ExtractManagePackageVersionsCentrallyOverride(root);
+        var dpp = context?.CentralPackageVersions;
+        var effectiveCpm = dpp is not null && dpp.ManagePackageVersionsCentrally && localOverride != false;
+
         var packageReferences = root
             .Descendants("PackageReference")
-            .Select(e => new RawPackageReference(
-                e.Attribute("Include")?.Value ?? string.Empty,
-                e.Attribute("Version")?.Value))
-            .Where(pr => !string.IsNullOrWhiteSpace(pr.Name))
+            .Select(e => ResolvePackageDependency(
+                name: e.Attribute("Include")?.Value,
+                explicitVersion: e.Attribute("Version")?.Value,
+                versionOverride: e.Attribute("VersionOverride")?.Value,
+                effectiveCpm: effectiveCpm,
+                dpp: dpp))
+            .Where(pd => pd is not null)
+            .Select(pd => pd!)
             .ToList();
 
-        var managesCentrally = root
-            .Descendants("ManagePackageVersionsCentrally")
-            .Select(e => e.Value)
-            .Any(v => bool.TryParse(v, out var result) && result);
+        return new ParsedProject(targetFrameworks, projectReferences, packageReferences, localOverride);
+    }
 
-        return new ParsedProject(targetFrameworks, projectReferences, packageReferences, managesCentrally);
+    private static PackageDependency? ResolvePackageDependency(
+        string? name,
+        string? explicitVersion,
+        string? versionOverride,
+        bool effectiveCpm,
+        ParsedPackagesProps? dpp)
+    {
+        if (string.IsNullOrWhiteSpace(name)) return null;
+
+        if (!effectiveCpm)
+            return new PackageDependency(name, explicitVersion, PackageVersionSourceType.Explicit);
+
+        if (!string.IsNullOrWhiteSpace(versionOverride))
+            return new PackageDependency(name, versionOverride, PackageVersionSourceType.VersionOverride);
+
+        if (dpp is not null && dpp.CentralPackageVersions.TryGetValue(name, out var centralVersion))
+            return new PackageDependency(name, centralVersion, PackageVersionSourceType.CentralPackageManagement);
+
+        // پیدا نشد: نه در csproj (چون CPM فعاله و انتظار Version نداریم) نه در DPP
+        return new PackageDependency(name, null, PackageVersionSourceType.CentralPackageManagement);
+    }
+
+    private static bool? ExtractManagePackageVersionsCentrallyOverride(XElement root)
+    {
+        var raw = root.Descendants("ManagePackageVersionsCentrally").Select(e => e.Value).FirstOrDefault();
+        return raw is not null && bool.TryParse(raw, out var parsed) ? parsed : null;
     }
 
     private static List<string> ExtractTargetFrameworks(XElement root)
@@ -115,6 +146,11 @@ internal sealed class ParserService : IParserService
         var doc = XDocument.Parse(raw);
         var root = doc.Root ?? throw new InvalidOperationException("Missing root <Project> element.");
 
+        var managesCentrally = root
+            .Descendants("ManagePackageVersionsCentrally")
+            .Select(e => e.Value)
+            .Any(v => bool.TryParse(v, out var result) && result);
+
         var versions = root
             .Descendants("PackageVersion")
             .Select(e => new
@@ -126,6 +162,6 @@ internal sealed class ParserService : IParserService
             .GroupBy(x => x.Name!, StringComparer.OrdinalIgnoreCase)
             .ToDictionary(g => g.Key, g => g.First().Version!, StringComparer.OrdinalIgnoreCase);
 
-        return new ParsedPackagesProps(versions);
+        return new ParsedPackagesProps(managesCentrally, versions);
     }
 }
