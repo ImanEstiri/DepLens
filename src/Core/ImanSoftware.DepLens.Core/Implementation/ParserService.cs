@@ -100,7 +100,7 @@ internal sealed class ParserService : IParserService
             .Select(pd => pd!)
             .ToList();
 
-        return new ParsedProject(targetFrameworks, projectReferences, packageReferences, localOverride);
+        return new ParsedProject(targetFrameworks, projectReferences, packageReferences, localOverride,effectiveCpm);
     }
 
     private static PackageDependency? ResolvePackageDependency(
