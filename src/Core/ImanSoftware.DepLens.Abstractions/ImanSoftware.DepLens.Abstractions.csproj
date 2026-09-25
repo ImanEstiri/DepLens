@@ -7,12 +7,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Models\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="ImanSoftware.OutCome"/>
-    <PackageReference Include="ImanSoftware.FileStorage"/>
+    <PackageReference Include="ImanSoftware.OutCome" />
+    <PackageReference Include="ImanSoftware.FileStorage" />
+    <PackageReference Include="ImanSoftware.Extensions" />
   </ItemGroup>
 
 </Project>
