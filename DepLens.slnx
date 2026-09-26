@@ -12,4 +12,7 @@
     <Project Path="src/Core/ImanSoftware.DepLens.Abstractions/ImanSoftware.DepLens.Abstractions.csproj" Id="5ff09ffc-c08f-4c82-8c98-0bcc7f40b501" />
     <Project Path="src/Core/ImanSoftware.DepLens.Core/ImanSoftware.DepLens.Core.csproj" Id="792bea09-74c3-4a74-ba06-7426283e2f28" />
   </Folder>
+  <Folder Name="/src/Playground/">
+    <Project Path="src/Playground/ImanSoftware.DepLens.Playground/ImanSoftware.DepLens.Playground.csproj" Id="e7dd5387-4bfa-47d8-b439-452af5a5e4e0" />
+  </Folder>
 </Solution>
