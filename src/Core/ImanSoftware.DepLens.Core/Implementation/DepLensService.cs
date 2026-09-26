@@ -9,35 +9,54 @@ internal sealed class DepLensService : IDepLensService
     private readonly IDirectoryScanner _directoryScanner;
     private readonly IParserService _parserService;
     private readonly IProjectOrienterService _orienterService;
+    private readonly IProjectReferenceLinkerService _linkerService;
+    private readonly IDependencyGraphBuilderService _graphBuilderService;
 
     public DepLensService()
-        : this(new DirectoryScannerService(), new ParserService(), new ProjectOrienterService()) { }
+        : this(
+            new DirectoryScannerService(),
+            new ParserService(),
+            new ProjectOrienterService(),
+            new ProjectReferenceLinkerService(),
+            new DependencyGraphBuilderService())
+    { }
 
     internal DepLensService(
         IDirectoryScanner directoryScanner,
         IParserService parserService,
-        IProjectOrienterService orienterService)
+        IProjectOrienterService orienterService,
+        IProjectReferenceLinkerService linkerService,
+        IDependencyGraphBuilderService graphBuilderService)
     {
         _directoryScanner = directoryScanner;
         _parserService = parserService;
         _orienterService = orienterService;
+        _linkerService = linkerService;
+        _graphBuilderService = graphBuilderService;
     }
 
-    public async Task<Outcome> Analyze(string path)
+    public async Task<Outcome<List<ProjectDependencyReport>>> Analyze(string path)
     {
-        // scan (path most be pointing to a directory not a file)
+        // --- Step 1: Scan ---
         var scanOutcome = await _directoryScanner.InvestigateDirectoryAsync(path);
-
         if (!scanOutcome.IsSuccess || scanOutcome.Data is null)
-            return Outcome.Failure(scanOutcome.Error);
+            return Outcome.Failure<List<ProjectDependencyReport>>(scanOutcome.Error);
 
         var discoveredFiles = scanOutcome.Data;
-        
-        // parse 
-        var solutionFiles = discoveredFiles
-        .Where(f => f.FileType is FileType.SolutionClassic or FileType.SolutionXml)
-        .ToList();
 
+        var solutionFiles = discoveredFiles
+            .Where(f => f.FileType is FileType.SolutionClassic or FileType.SolutionXml)
+            .ToList();
+
+        var packagesPropsFiles = discoveredFiles
+            .Where(f => f.FileType is FileType.DirectoryPackagesProps)
+            .ToList();
+
+        var projectFiles = discoveredFiles
+            .Where(f => f.FileType is FileType.Project)
+            .ToList();
+
+        // --- Step 2: Parse Solutions + Directory.Packages.props ---
         var parsedSolutions = new List<ParsedFile>();
         foreach (var file in solutionFiles)
         {
@@ -45,11 +64,6 @@ internal sealed class DepLensService : IDepLensService
             if (parseOutcome.IsSuccess && parseOutcome.Data is not null)
                 parsedSolutions.Add(parseOutcome.Data);
         }
-
-
-        var packagesPropsFiles = discoveredFiles
-            .Where(f => f.FileType is FileType.DirectoryPackagesProps)
-            .ToList();
 
         var parsedPackagesProps = new List<ParsedFile>();
         foreach (var file in packagesPropsFiles)
@@ -59,19 +73,15 @@ internal sealed class DepLensService : IDepLensService
                 parsedPackagesProps.Add(parseOutcome.Data);
         }
 
-
-        // orient
-        var projectFiles = discoveredFiles
-            .Where(f => f.FileType is FileType.Project)
-            .ToList();
-
+        // --- Step 3: Orient ---
         var orientOutcome = await _orienterService.Orient(projectFiles, parsedSolutions, parsedPackagesProps);
         if (!orientOutcome.IsSuccess || orientOutcome.Data is null)
-            return Outcome.Failure(orientOutcome.Error);
+            return Outcome.Failure<List<ProjectDependencyReport>>(orientOutcome.Error);
 
+        var projectContexts = orientOutcome.Data;
+        var contextsByPath = projectContexts.ToDictionary(c => c.ProjectFullPath);
 
-        var contextsByPath = orientOutcome.Data.ToDictionary(c => c.ProjectFullPath);
-
+        // --- Step 4: Parse Projects ---
         var parsedProjects = new List<ParsedFile>();
         foreach (var file in projectFiles)
         {
@@ -81,10 +91,18 @@ internal sealed class DepLensService : IDepLensService
                 parsedProjects.Add(parseOutcome.Data);
         }
 
-        // resolve parsed data to find references
+        // --- Step 5: Link ProjectReferences (Internal/External) ---
+        var linkOutcome = await _linkerService.Link(parsedProjects);
+        if (!linkOutcome.IsSuccess || linkOutcome.Data is null)
+            return Outcome.Failure<List<ProjectDependencyReport>>(linkOutcome.Error);
 
+        var resolvedReferences = linkOutcome.Data;
 
+        // --- Step 6: Build dependency graph ---
+        var graphOutcome = await _graphBuilderService.Build(parsedProjects, resolvedReferences, projectContexts);
+        if (!graphOutcome.IsSuccess || graphOutcome.Data is null)
+            return Outcome.Failure<List<ProjectDependencyReport>>(graphOutcome.Error);
 
-        throw new NotImplementedException();
+        return Outcome.Successful(graphOutcome.Data);
     }
 }
