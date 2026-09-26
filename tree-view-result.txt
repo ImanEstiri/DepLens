@@ -15,117 +15,191 @@ G:.
 |   tree-view.bat
 |   
 \---src
-    \---Core
-        +---ImanSoftware.DepLens.Abstractions
-        |   |   ImanSoftware.DepLens.Abstractions.csproj
-        |   |   
-        |   +---bin
-        |   |   \---Debug
-        |   |       \---net10.0
-        |   |               ImanSoftware.DepLens.Abstractions.deps.json
-        |   |               ImanSoftware.DepLens.Abstractions.dll
-        |   |               ImanSoftware.DepLens.Abstractions.pdb
-        |   |               
-        |   +---Models
-        |   |   +---DirectoryScanner
-        |   |   |       DiscoveredFiles.cs
-        |   |   |       
-        |   |   +---Enums
-        |   |   |       DependencyScope.cs
-        |   |   |       DependencyType.cs
-        |   |   |       FileType.cs
-        |   |   |       PackageVersionSourceType.cs
-        |   |   |       
-        |   |   \---Parser
-        |   |           IParsedContent.cs
-        |   |           ParsedFile.cs
-        |   |           ParsedPackagesProps.cs
-        |   |           ParsedProject.cs
-        |   |           ParsedSolution.cs
-        |   |           RawPackageReference.cs
-        |   |           RawProjectReference.cs
-        |   |           
-        |   +---obj
-        |   |   |   ImanSoftware.DepLens.Abstractions.csproj.nuget.dgspec.json
-        |   |   |   ImanSoftware.DepLens.Abstractions.csproj.nuget.g.props
-        |   |   |   ImanSoftware.DepLens.Abstractions.csproj.nuget.g.targets
-        |   |   |   project.assets.json
-        |   |   |   project.nuget.cache
-        |   |   |   
-        |   |   \---Debug
-        |   |       \---net10.0
-        |   |           |   .NETCoreApp,Version=v10.0.AssemblyAttributes.cs
-        |   |           |   ImanSoft.C1418928.Up2Date
-        |   |           |   ImanSoftware.DepLens.Abstractions.AssemblyInfo.cs
-        |   |           |   ImanSoftware.DepLens.Abstractions.AssemblyInfoInputs.cache
-        |   |           |   ImanSoftware.DepLens.Abstractions.assets.cache
-        |   |           |   ImanSoftware.DepLens.Abstractions.csproj.AssemblyReference.cache
-        |   |           |   ImanSoftware.DepLens.Abstractions.csproj.CoreCompileInputs.cache
-        |   |           |   ImanSoftware.DepLens.Abstractions.csproj.FileListAbsolute.txt
-        |   |           |   ImanSoftware.DepLens.Abstractions.dll
-        |   |           |   ImanSoftware.DepLens.Abstractions.GeneratedMSBuildEditorConfig.editorconfig
-        |   |           |   ImanSoftware.DepLens.Abstractions.GlobalUsings.g.cs
-        |   |           |   ImanSoftware.DepLens.Abstractions.pdb
-        |   |           |   ImanSoftware.DepLens.Abstractions.sourcelink.json
-        |   |           |   
-        |   |           +---ref
-        |   |           |       ImanSoftware.DepLens.Abstractions.dll
-        |   |           |       
-        |   |           \---refint
-        |   |                   ImanSoftware.DepLens.Abstractions.dll
-        |   |                   
-        |   \---Services
-        |           IDepLensService.cs
-        |           IDirectoryScanner.cs
-        |           IParserService.cs
-        |           IService.cs
-        |           
-        \---ImanSoftware.DepLens.Core
-            |   ImanSoftware.DepLens.Core.csproj
+    +---Core
+    |   +---ImanSoftware.DepLens.Abstractions
+    |   |   |   ImanSoftware.DepLens.Abstractions.csproj
+    |   |   |   
+    |   |   +---bin
+    |   |   |   \---Debug
+    |   |   |       \---net10.0
+    |   |   |               ImanSoftware.DepLens.Abstractions.deps.json
+    |   |   |               ImanSoftware.DepLens.Abstractions.dll
+    |   |   |               ImanSoftware.DepLens.Abstractions.pdb
+    |   |   |               
+    |   |   +---Models
+    |   |   |   +---DirectoryScanner
+    |   |   |   |       DiscoveredFiles.cs
+    |   |   |   |       
+    |   |   |   +---Enums
+    |   |   |   |       DependencyScope.cs
+    |   |   |   |       DependencyType.cs
+    |   |   |   |       FileType.cs
+    |   |   |   |       PackageVersionSourceType.cs
+    |   |   |   |       
+    |   |   |   +---Graph
+    |   |   |   |       Dependency.cs
+    |   |   |   |       ProjectDependencyReport.cs
+    |   |   |   |       
+    |   |   |   \---Parser
+    |   |   |           IParsedContent.cs
+    |   |   |           PackageDependency.cs
+    |   |   |           ParsedFile.cs
+    |   |   |           ParsedPackagesProps.cs
+    |   |   |           ParsedProject.cs
+    |   |   |           ParsedSolution.cs
+    |   |   |           ProjectContext.cs
+    |   |   |           ProjectReferenceLink.cs
+    |   |   |           RawProjectReference.cs
+    |   |   |           ResolvedProjectReferences.cs
+    |   |   |           
+    |   |   +---obj
+    |   |   |   |   ImanSoftware.DepLens.Abstractions.csproj.nuget.dgspec.json
+    |   |   |   |   ImanSoftware.DepLens.Abstractions.csproj.nuget.g.props
+    |   |   |   |   ImanSoftware.DepLens.Abstractions.csproj.nuget.g.targets
+    |   |   |   |   project.assets.json
+    |   |   |   |   project.nuget.cache
+    |   |   |   |   
+    |   |   |   \---Debug
+    |   |   |       \---net10.0
+    |   |   |           |   .NETCoreApp,Version=v10.0.AssemblyAttributes.cs
+    |   |   |           |   ImanSoft.C1418928.Up2Date
+    |   |   |           |   ImanSoftware.DepLens.Abstractions.AssemblyInfo.cs
+    |   |   |           |   ImanSoftware.DepLens.Abstractions.AssemblyInfoInputs.cache
+    |   |   |           |   ImanSoftware.DepLens.Abstractions.assets.cache
+    |   |   |           |   ImanSoftware.DepLens.Abstractions.csproj.AssemblyReference.cache
+    |   |   |           |   ImanSoftware.DepLens.Abstractions.csproj.CoreCompileInputs.cache
+    |   |   |           |   ImanSoftware.DepLens.Abstractions.csproj.FileListAbsolute.txt
+    |   |   |           |   ImanSoftware.DepLens.Abstractions.dll
+    |   |   |           |   ImanSoftware.DepLens.Abstractions.GeneratedMSBuildEditorConfig.editorconfig
+    |   |   |           |   ImanSoftware.DepLens.Abstractions.GlobalUsings.g.cs
+    |   |   |           |   ImanSoftware.DepLens.Abstractions.pdb
+    |   |   |           |   ImanSoftware.DepLens.Abstractions.sourcelink.json
+    |   |   |           |   
+    |   |   |           +---ref
+    |   |   |           |       ImanSoftware.DepLens.Abstractions.dll
+    |   |   |           |       
+    |   |   |           \---refint
+    |   |   |                   ImanSoftware.DepLens.Abstractions.dll
+    |   |   |                   
+    |   |   \---Services
+    |   |           IDependencyGraphBuilderService.cs
+    |   |           IDepLensService.cs
+    |   |           IDirectoryScanner.cs
+    |   |           IHtmlGraphReportService.cs
+    |   |           IParserService.cs
+    |   |           IProjectOrienterService.cs
+    |   |           IProjectReferenceLinkerService.cs
+    |   |           IService.cs
+    |   |           
+    |   \---ImanSoftware.DepLens.Core
+    |       |   ImanSoftware.DepLens.Core.csproj
+    |       |   
+    |       +---bin
+    |       |   \---Debug
+    |       |       \---net10.0
+    |       |               ImanSoftware.DepLens.Abstractions.dll
+    |       |               ImanSoftware.DepLens.Abstractions.pdb
+    |       |               ImanSoftware.DepLens.Core.deps.json
+    |       |               ImanSoftware.DepLens.Core.dll
+    |       |               ImanSoftware.DepLens.Core.pdb
+    |       |               
+    |       +---Factory
+    |       |       DepLensServiceFactory.cs
+    |       |       
+    |       +---Implementation
+    |       |       DependencyGraphBuilderService.cs
+    |       |       DepLensService.cs
+    |       |       DirectoryScannerService.cs
+    |       |       HtmlGraphReportService.cs
+    |       |       ParserService.cs
+    |       |       ProjectOrienterService.cs
+    |       |       ProjectReferenceLinkerService.cs
+    |       |       
+    |       \---obj
+    |           |   ImanSoftware.DepLens.Core.csproj.nuget.dgspec.json
+    |           |   ImanSoftware.DepLens.Core.csproj.nuget.g.props
+    |           |   ImanSoftware.DepLens.Core.csproj.nuget.g.targets
+    |           |   project.assets.json
+    |           |   project.nuget.cache
+    |           |   
+    |           \---Debug
+    |               \---net10.0
+    |                   |   .NETCoreApp,Version=v10.0.AssemblyAttributes.cs
+    |                   |   ImanSoft.214A8546.Up2Date
+    |                   |   ImanSoftware.DepLens.Core.AssemblyInfo.cs
+    |                   |   ImanSoftware.DepLens.Core.AssemblyInfoInputs.cache
+    |                   |   ImanSoftware.DepLens.Core.assets.cache
+    |                   |   ImanSoftware.DepLens.Core.csproj.AssemblyReference.cache
+    |                   |   ImanSoftware.DepLens.Core.csproj.BuildWithSkipAnalyzers
+    |                   |   ImanSoftware.DepLens.Core.csproj.CoreCompileInputs.cache
+    |                   |   ImanSoftware.DepLens.Core.csproj.FileListAbsolute.txt
+    |                   |   ImanSoftware.DepLens.Core.dll
+    |                   |   ImanSoftware.DepLens.Core.GeneratedMSBuildEditorConfig.editorconfig
+    |                   |   ImanSoftware.DepLens.Core.GlobalUsings.g.cs
+    |                   |   ImanSoftware.DepLens.Core.pdb
+    |                   |   ImanSoftware.DepLens.Core.sourcelink.json
+    |                   |   
+    |                   +---ref
+    |                   |       ImanSoftware.DepLens.Core.dll
+    |                   |       
+    |                   \---refint
+    |                           ImanSoftware.DepLens.Core.dll
+    |                           
+    \---Playground
+        \---ImanSoftware.DepLens.Playground
+            |   ImanSoftware.DepLens.Playground.csproj
+            |   Program.cs
             |   
             +---bin
             |   \---Debug
             |       \---net10.0
             |               ImanSoftware.DepLens.Abstractions.dll
             |               ImanSoftware.DepLens.Abstractions.pdb
-            |               ImanSoftware.DepLens.Core.deps.json
             |               ImanSoftware.DepLens.Core.dll
             |               ImanSoftware.DepLens.Core.pdb
+            |               ImanSoftware.DepLens.Playground.deps.json
+            |               ImanSoftware.DepLens.Playground.dll
+            |               ImanSoftware.DepLens.Playground.exe
+            |               ImanSoftware.DepLens.Playground.pdb
+            |               ImanSoftware.DepLens.Playground.runtimeconfig.json
+            |               ImanSoftware.Extensions.dll
+            |               ImanSoftware.FileStorage.dll
+            |               ImanSoftware.Logging.dll
+            |               ImanSoftware.Outcome.dll
+            |               Microsoft.Extensions.DependencyInjection.Abstractions.dll
+            |               Microsoft.Extensions.Logging.Abstractions.dll
+            |               Microsoft.Extensions.Options.dll
+            |               Microsoft.Extensions.Primitives.dll
             |               
-            +---Factory
-            |       DepLensServiceFactory.cs
-            |       
-            +---Implementation
-            |       DepLensService.cs
-            |       DirectoryScannerService.cs
-            |       ParserService.cs
-            |       
             \---obj
-                |   ImanSoftware.DepLens.Core.csproj.nuget.dgspec.json
-                |   ImanSoftware.DepLens.Core.csproj.nuget.g.props
-                |   ImanSoftware.DepLens.Core.csproj.nuget.g.targets
+                |   ImanSoftware.DepLens.Playground.csproj.nuget.dgspec.json
+                |   ImanSoftware.DepLens.Playground.csproj.nuget.g.props
+                |   ImanSoftware.DepLens.Playground.csproj.nuget.g.targets
                 |   project.assets.json
                 |   project.nuget.cache
                 |   
                 \---Debug
                     \---net10.0
                         |   .NETCoreApp,Version=v10.0.AssemblyAttributes.cs
-                        |   ImanSoft.214A8546.Up2Date
-                        |   ImanSoftware.DepLens.Core.AssemblyInfo.cs
-                        |   ImanSoftware.DepLens.Core.AssemblyInfoInputs.cache
-                        |   ImanSoftware.DepLens.Core.assets.cache
-                        |   ImanSoftware.DepLens.Core.csproj.AssemblyReference.cache
-                        |   ImanSoftware.DepLens.Core.csproj.CoreCompileInputs.cache
-                        |   ImanSoftware.DepLens.Core.csproj.FileListAbsolute.txt
-                        |   ImanSoftware.DepLens.Core.dll
-                        |   ImanSoftware.DepLens.Core.GeneratedMSBuildEditorConfig.editorconfig
-                        |   ImanSoftware.DepLens.Core.GlobalUsings.g.cs
-                        |   ImanSoftware.DepLens.Core.pdb
-                        |   ImanSoftware.DepLens.Core.sourcelink.json
+                        |   apphost.exe
+                        |   ImanSoft.CFCC2479.Up2Date
+                        |   ImanSoftware.DepLens.Playground.AssemblyInfo.cs
+                        |   ImanSoftware.DepLens.Playground.AssemblyInfoInputs.cache
+                        |   ImanSoftware.DepLens.Playground.assets.cache
+                        |   ImanSoftware.DepLens.Playground.csproj.AssemblyReference.cache
+                        |   ImanSoftware.DepLens.Playground.csproj.BuildWithSkipAnalyzers
+                        |   ImanSoftware.DepLens.Playground.csproj.CoreCompileInputs.cache
+                        |   ImanSoftware.DepLens.Playground.csproj.FileListAbsolute.txt
+                        |   ImanSoftware.DepLens.Playground.dll
+                        |   ImanSoftware.DepLens.Playground.GeneratedMSBuildEditorConfig.editorconfig
+                        |   ImanSoftware.DepLens.Playground.genruntimeconfig.cache
+                        |   ImanSoftware.DepLens.Playground.GlobalUsings.g.cs
+                        |   ImanSoftware.DepLens.Playground.pdb
+                        |   ImanSoftware.DepLens.Playground.sourcelink.json
                         |   
                         +---ref
-                        |       ImanSoftware.DepLens.Core.dll
+                        |       ImanSoftware.DepLens.Playground.dll
                         |       
                         \---refint
-                                ImanSoftware.DepLens.Core.dll
+                                ImanSoftware.DepLens.Playground.dll
                                 
