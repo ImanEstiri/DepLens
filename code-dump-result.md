@@ -1935,3 +1935,247 @@ internal class Program
 ``` 
 
 
+### src > UI > ImanSoftware.DepLens.Cli > ImanSoftware.DepLens.Cli 
+
+```xml 
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Spectre.Console" />
+    <PackageReference Include="Spectre.Console.Cli" />
+  </ItemGroup>
+
+  
+  <ItemGroup>
+    <ProjectReference Include="..\..\Core\ImanSoftware.DepLens.Core\ImanSoftware.DepLens.Core.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>deplens</ToolCommandName>
+    <PackageId>ImanSoftware.DepLens.Cli</PackageId>
+    <Version>1.0.0</Version>
+    <Description>DepLens — Interactive dependency graph analyzer for .NET solutions.</Description>
+    <PackageTags>dotnet;dependency-graph;nuget;msbuild;cli;deplens</PackageTags>
+    <PackageIcon>icon.png</PackageIcon>
+  </PropertyGroup>
+
+</Project>
+
+``` 
+
+
+### src > UI > ImanSoftware.DepLens.Cli > Program 
+
+```csharp 
+﻿using ImanSoftware.DepLens.Cli.Commands.Analyze;
+using Spectre.Console;
+using Spectre.Console.Cli;
+
+var app = new CommandApp();
+
+app.Configure(config =>
+{
+    config.SetApplicationName("deplens");
+    config.SetApplicationVersion("0.1.0");
+
+    config.AddCommand<AnalyzeCommand>("analyze")
+    .WithDescription("Analyze a .NET solution and generate a dependency graph.")
+    .WithExample("analyze")                                     
+    .WithExample("analyze", @"G:\Projects\MyApp")
+    .WithExample("analyze", @"G:\Projects\MyApp", "-o", @".\out");
+});
+
+try
+{
+    return await app.RunAsync(args);
+}
+catch (Exception ex)
+{
+    AnsiConsole.WriteException(ex, ExceptionFormats.ShortenEverything);
+    return 1;
+}
+
+``` 
+
+
+### src > UI > ImanSoftware.DepLens.Cli > Commands > Analyze > AnalyzeCommand 
+
+```csharp 
+﻿using ImanSoftware.DepLens.Cli.Helpers;
+using ImanSoftware.DepLens.Core.Factory;
+using Spectre.Console;
+using Spectre.Console.Cli;
+
+namespace ImanSoftware.DepLens.Cli.Commands.Analyze;
+
+internal sealed class AnalyzeCommand : AsyncCommand<AnalyzeSettings>
+{
+    protected override async Task<int> ExecuteAsync(CommandContext context, AnalyzeSettings settings,CancellationToken _)
+    {
+        var effectivePath = settings.GetEffectivePath();
+        var fullPath = System.IO.Path.GetFullPath(effectivePath);
+        var outputDirectory = ResolveOutputDirectory(settings.Output, fullPath);
+
+        ConsoleWriter.Header(fullPath, outputDirectory);
+
+        // analyze 
+        var analyzer = DepLensServiceFactory.Create();
+
+        var analyzeOutcome = await AnsiConsole.Status()
+            .Spinner(Spinner.Known.Dots)
+            .StartAsync("Analyzing solution(s)...",
+                _ => analyzer.Analyze(fullPath));
+
+        if (analyzeOutcome.IsFailure)
+        {
+            ConsoleWriter.Error(analyzeOutcome.Error.Message);
+            return 1;
+        }
+
+        var reports = analyzeOutcome.Data;
+
+        if (reports is null || reports.Count == 0)
+        {
+            ConsoleWriter.Warning("No projects found.");
+            return 1;
+        }
+
+        ConsoleWriter.Success($"Analyzed {reports.Count} project(s)");
+
+        // generate report 
+        var reportGenerator = DepLensServiceFactory.CreateHtmlReportGenerator();
+
+        var reportOutcome = await reportGenerator.GenerateAsync(reports, outputDirectory);
+
+        if (reportOutcome.IsFailure)
+        {
+            ConsoleWriter.Error(reportOutcome.Error.Message);
+            return 1;
+        }
+
+        ConsoleWriter.Success($"Report: {reportOutcome.Data} \n\n");
+
+        AnsiConsole.MarkupLine($"[grey]Open:[/] [link]{reportOutcome.Data}[/]");
+        return 0;
+    }
+
+    private static string ResolveOutputDirectory(string? outputOption, string scannedPath)
+    {
+        if (!string.IsNullOrWhiteSpace(outputOption))
+        {
+            var outputFull = System.IO.Path.GetFullPath(outputOption);
+
+            // اگر مسیر به یک فایل اشاره می‌کند (پسوند دارد و پوشه نیست)، پوشه‌اش را برگردان
+            if (System.IO.Path.HasExtension(outputFull) && !Directory.Exists(outputFull))
+                return System.IO.Path.GetDirectoryName(outputFull)!;
+
+            return outputFull;
+        }
+
+        // پیش‌فرض: اگر مسیر اسکن یک فایل است، پوشه‌اش؛ اگر پوشه است، خودش
+        return Directory.Exists(scannedPath)
+            ? scannedPath
+            : System.IO.Path.GetDirectoryName(scannedPath)!;
+    }
+}
+
+``` 
+
+
+### src > UI > ImanSoftware.DepLens.Cli > Commands > Analyze > AnalyzeSettings 
+
+```csharp 
+﻿using System.ComponentModel;
+using Spectre.Console;
+using Spectre.Console.Cli;
+
+namespace ImanSoftware.DepLens.Cli.Commands.Analyze;
+
+internal sealed class AnalyzeSettings : CommandSettings
+{
+    [CommandArgument(0, "[path]")]
+    [Description("Path to a directory containing solutions. Defaults to the current directory.")]
+    public string Path { get; init; } = string.Empty;
+
+    // TODO
+    //[CommandOption("-f|--format <FORMAT>")]
+    //[Description("Output format (only 'html' supported in v0.1)")]
+    //[DefaultValue("html")]
+    //public string Format { get; init; } = "html";
+
+    [CommandOption("-o|--output <PATH>")]
+    [Description("Output directory for the report (defaults to the scanned path)")]
+    public string? Output { get; init; }
+
+    // TODO
+    //[CommandOption("-v|--verbose")]
+    //[Description("Show detailed progress output")]
+    //public bool Verbose { get; init; }
+
+    public override ValidationResult Validate()
+    {
+        var effectivePath = string.IsNullOrWhiteSpace(Path)
+            ? Directory.GetCurrentDirectory()
+            : Path;
+
+        var fullPath = System.IO.Path.GetFullPath(effectivePath);
+
+        if (!File.Exists(fullPath) && !Directory.Exists(fullPath))
+            return ValidationResult.Error($"Path not found: {fullPath}");
+
+        //if (!string.Equals(Format, "html", StringComparison.OrdinalIgnoreCase))
+        //    return ValidationResult.Error($"Unsupported format '{Format}'. Supported: html");
+
+        return ValidationResult.Success();
+    }
+
+    public string GetEffectivePath()
+        => string.IsNullOrWhiteSpace(Path)
+            ? Directory.GetCurrentDirectory()
+            : Path;
+}
+
+``` 
+
+
+### src > UI > ImanSoftware.DepLens.Cli > Helpers > ConsoleWriter 
+
+```csharp 
+﻿using Spectre.Console;
+
+namespace ImanSoftware.DepLens.Cli.Helpers;
+
+internal static class ConsoleWriter
+{
+    public static void Header(string targetPath, string outputDirectory)
+    {
+        AnsiConsole.Write(new Rule("[cyan bold]DepLens[/]").RuleStyle("grey").LeftJustified());
+        AnsiConsole.MarkupLine($"[grey]Scanning :[/] [white]{targetPath.EscapeMarkup()}[/]");
+        AnsiConsole.MarkupLine($"[grey]Output   :[/] [white]{outputDirectory.EscapeMarkup()}[/]");
+        AnsiConsole.WriteLine();
+    }
+
+    public static void Success(string message)
+        => AnsiConsole.MarkupLine($"[green]✓[/] {message.EscapeMarkup()}");
+
+    public static void Warning(string message)
+        => AnsiConsole.MarkupLine($"[yellow]⚠[/] {message.EscapeMarkup()}");
+
+    public static void Error(string message)
+        => AnsiConsole.MarkupLine($"[red]✗[/] {message.EscapeMarkup()}");
+
+    public static void Info(string message)
+        => AnsiConsole.MarkupLine($"[grey]ℹ[/] {message.EscapeMarkup()}");
+}
+
+``` 
+
+
