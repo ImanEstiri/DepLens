@@ -279,7 +279,7 @@ try {
 
     Write-Action "pushing package to nuget ..."
 
-    $pushTimeoutSeconds = 15
+    $pushTimeoutSeconds = 30
     $pushArgs = @(
         'nuget', 'push', $nupkg.FullName,
         '--source', 'https://api.nuget.org/v3/index.json',
