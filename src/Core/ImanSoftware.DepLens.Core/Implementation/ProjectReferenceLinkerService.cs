@@ -12,6 +12,11 @@ internal sealed class ProjectReferenceLinkerService : IProjectReferenceLinkerSer
             .Select(p => NormalizePath(p.Source.FullPath))
             .ToHashSet();
 
+        var projectsByDirectory = parsedProjects
+            .Select(p => NormalizePath(p.Source.FullPath))
+            .GroupBy(p => NormalizeDirectory(Path.GetDirectoryName(p)!))
+            .ToDictionary(g => g.Key, g => g.ToList());
+
         var results = new List<ResolvedProjectReferences>();
 
         foreach (var parsedFile in parsedProjects)
@@ -26,9 +31,20 @@ internal sealed class ProjectReferenceLinkerService : IProjectReferenceLinkerSer
                 var combined = Path.Combine(projectDirectory, raw.RelativeOrAbsolutePath);
                 var normalized = NormalizePath(combined);
 
-                links.Add(knownProjectPaths.Contains(normalized)
-                    ? new InternalProjectReference(normalized)
-                    : new ExternalProjectReference(raw.RelativeOrAbsolutePath));
+                if (knownProjectPaths.Contains(normalized))
+                {
+                    links.Add(new InternalProjectReference(normalized));
+                    continue;
+                }
+
+                var targetDirectory = NormalizeDirectory(Path.GetDirectoryName(normalized)!);
+                if (projectsByDirectory.TryGetValue(targetDirectory, out var candidates) && candidates.Count == 1)
+                {
+                    links.Add(new InternalProjectReference(candidates[0]));
+                    continue;
+                }
+
+                links.Add(new ExternalProjectReference(raw.RelativeOrAbsolutePath));
             }
 
             results.Add(new ResolvedProjectReferences(parsedFile.Source.FullPath, links));
@@ -39,4 +55,6 @@ internal sealed class ProjectReferenceLinkerService : IProjectReferenceLinkerSer
 
     private static string NormalizePath(string path) =>
         Path.GetFullPath(path).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+
+    private static string NormalizeDirectory(string path) => NormalizePath(path);
 }
