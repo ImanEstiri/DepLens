@@ -16,14 +16,20 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Core\ImanSoftware.DepLens.Core\ImanSoftware.DepLens.Core.csproj" />
   </ItemGroup>
-
+  <ItemGroup>
+    <None Include="icon.png" Pack="true" PackagePath="" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="" />
+  </ItemGroup>
   <PropertyGroup>
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>deplens</ToolCommandName>
     <PackageId>ImanSoftware.DepLens.Cli</PackageId>
-    <Version>0.1.0</Version>
+    <Version>1.0.0</Version>
     <Description>DepLens — Interactive dependency graph analyzer for .NET solutions.</Description>
     <PackageTags>dotnet;dependency-graph;nuget;msbuild;cli;deplens</PackageTags>
+    <PackageIcon>icon.png</PackageIcon>
   </PropertyGroup>
 
 </Project>
