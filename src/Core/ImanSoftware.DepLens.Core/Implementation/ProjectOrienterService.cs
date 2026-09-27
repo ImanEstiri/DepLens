@@ -11,7 +11,7 @@ internal sealed class ProjectOrienterService : IProjectOrienterService
         IReadOnlyList<ParsedFile> parsedSolutions,
         IReadOnlyList<ParsedFile> parsedPackagesProps)
     {
-        var solutionProjectMap = BuildSolutionProjectMap(parsedSolutions);
+        var solutionProjectMap = BuildSolutionProjectMap(parsedSolutions, projectFiles);
         var packagesPropsByDirectory = parsedPackagesProps
             .Where(f => f.Content is ParsedPackagesProps)
             .ToDictionary(
@@ -38,8 +38,15 @@ internal sealed class ProjectOrienterService : IProjectOrienterService
     }
 
     private static Dictionary<string, HashSet<string>> BuildSolutionProjectMap(
-        IReadOnlyList<ParsedFile> parsedSolutions)
+        IReadOnlyList<ParsedFile> parsedSolutions,
+        IReadOnlyList<DiscoveredFile> projectFiles)
     {
+        var knownProjectPaths = projectFiles.Select(f => NormalizePath(f.FullPath)).ToHashSet();
+        var projectsByDirectory = projectFiles
+            .Select(f => NormalizePath(f.FullPath))
+            .GroupBy(p => NormalizeDirectory(Path.GetDirectoryName(p)!))
+            .ToDictionary(g => g.Key, g => g.ToList());
+
         var map = new Dictionary<string, HashSet<string>>();
 
         foreach (var solutionFile in parsedSolutions)
@@ -52,7 +59,19 @@ internal sealed class ProjectOrienterService : IProjectOrienterService
             foreach (var relativePath in parsedSolution.ProjectPaths)
             {
                 var combined = Path.Combine(solutionDirectory, relativePath);
-                resolvedPaths.Add(NormalizePath(combined));
+                var normalized = NormalizePath(combined);
+
+                if (knownProjectPaths.Contains(normalized))
+                {
+                    resolvedPaths.Add(normalized);
+                    continue;
+                }
+
+                // همون Fallback: مدخل .sln/.slnx به یک csproj رنیم‌شده اشاره می‌کنه —
+                // اگه دایرکتوری مقصد دقیقاً یک پروژه داشت، اون رو بپذیر.
+                var targetDirectory = NormalizeDirectory(Path.GetDirectoryName(normalized)!);
+                if (projectsByDirectory.TryGetValue(targetDirectory, out var candidates) && candidates.Count == 1)
+                    resolvedPaths.Add(candidates[0]);
             }
 
             map[solutionFile.Source.FullPath] = resolvedPaths;
@@ -66,15 +85,12 @@ internal sealed class ProjectOrienterService : IProjectOrienterService
         Dictionary<string, ParsedPackagesProps> packagesPropsByDirectory)
     {
         var currentDirectory = Path.GetDirectoryName(projectFullPath);
-
         while (!string.IsNullOrEmpty(currentDirectory))
         {
             if (packagesPropsByDirectory.TryGetValue(NormalizeDirectory(currentDirectory), out var props))
                 return props;
-
             currentDirectory = Directory.GetParent(currentDirectory)?.FullName;
         }
-
         return null;
     }
 
