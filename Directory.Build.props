@@ -21,5 +21,18 @@
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
     </ItemGroup>
-	
+
+  <PropertyGroup>
+    <Authors>Iman Estiri</Authors>
+    <Company>ImanSoftware</Company>
+    <Copyright>Copyright (c) $([System.DateTime]::Now.Year) ImanSoftware</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/ImanEstiri/DepLens</PackageProjectUrl>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+
+    <PackageReadmeFile Condition="Exists('README.md')">README.md</PackageReadmeFile>
+    
+  </PropertyGroup>
 </Project>
