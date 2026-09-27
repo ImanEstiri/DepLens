@@ -11,20 +11,31 @@ G:.
 |   Directory.Packages.props
 |   LICENSE.txt
 |   nuget.config
+|   publish.ps1
 |   tree-view-result.txt
 |   tree-view.bat
 |   
++---artifacts
+|   \---ImanSoftware.DepLens.Cli
 \---src
     +---Core
     |   +---ImanSoftware.DepLens.Abstractions
     |   |   |   ImanSoftware.DepLens.Abstractions.csproj
     |   |   |   
     |   |   +---bin
-    |   |   |   \---Debug
+    |   |   |   +---Debug
+    |   |   |   |   \---net10.0
+    |   |   |   |           ImanSoftware.DepLens.Abstractions.deps.json
+    |   |   |   |           ImanSoftware.DepLens.Abstractions.dll
+    |   |   |   |           ImanSoftware.DepLens.Abstractions.pdb
+    |   |   |   |           ImanSoftware.DepLens.Abstractions.xml
+    |   |   |   |           
+    |   |   |   \---Release
     |   |   |       \---net10.0
     |   |   |               ImanSoftware.DepLens.Abstractions.deps.json
     |   |   |               ImanSoftware.DepLens.Abstractions.dll
     |   |   |               ImanSoftware.DepLens.Abstractions.pdb
+    |   |   |               ImanSoftware.DepLens.Abstractions.xml
     |   |   |               
     |   |   +---Models
     |   |   |   +---DirectoryScanner
@@ -59,10 +70,32 @@ G:.
     |   |   |   |   project.assets.json
     |   |   |   |   project.nuget.cache
     |   |   |   |   
-    |   |   |   \---Debug
+    |   |   |   +---Debug
+    |   |   |   |   \---net10.0
+    |   |   |   |       |   .NETCoreApp,Version=v10.0.AssemblyAttributes.cs
+    |   |   |   |       |   ImanSoft.C1418928.Up2Date
+    |   |   |   |       |   ImanSoftware.DepLens.Abstractions.AssemblyInfo.cs
+    |   |   |   |       |   ImanSoftware.DepLens.Abstractions.AssemblyInfoInputs.cache
+    |   |   |   |       |   ImanSoftware.DepLens.Abstractions.assets.cache
+    |   |   |   |       |   ImanSoftware.DepLens.Abstractions.csproj.AssemblyReference.cache
+    |   |   |   |       |   ImanSoftware.DepLens.Abstractions.csproj.CoreCompileInputs.cache
+    |   |   |   |       |   ImanSoftware.DepLens.Abstractions.csproj.FileListAbsolute.txt
+    |   |   |   |       |   ImanSoftware.DepLens.Abstractions.dll
+    |   |   |   |       |   ImanSoftware.DepLens.Abstractions.GeneratedMSBuildEditorConfig.editorconfig
+    |   |   |   |       |   ImanSoftware.DepLens.Abstractions.GlobalUsings.g.cs
+    |   |   |   |       |   ImanSoftware.DepLens.Abstractions.pdb
+    |   |   |   |       |   ImanSoftware.DepLens.Abstractions.sourcelink.json
+    |   |   |   |       |   ImanSoftware.DepLens.Abstractions.xml
+    |   |   |   |       |   
+    |   |   |   |       +---ref
+    |   |   |   |       |       ImanSoftware.DepLens.Abstractions.dll
+    |   |   |   |       |       
+    |   |   |   |       \---refint
+    |   |   |   |               ImanSoftware.DepLens.Abstractions.dll
+    |   |   |   |               
+    |   |   |   \---Release
     |   |   |       \---net10.0
     |   |   |           |   .NETCoreApp,Version=v10.0.AssemblyAttributes.cs
-    |   |   |           |   ImanSoft.C1418928.Up2Date
     |   |   |           |   ImanSoftware.DepLens.Abstractions.AssemblyInfo.cs
     |   |   |           |   ImanSoftware.DepLens.Abstractions.AssemblyInfoInputs.cache
     |   |   |           |   ImanSoftware.DepLens.Abstractions.assets.cache
@@ -74,6 +107,7 @@ G:.
     |   |   |           |   ImanSoftware.DepLens.Abstractions.GlobalUsings.g.cs
     |   |   |           |   ImanSoftware.DepLens.Abstractions.pdb
     |   |   |           |   ImanSoftware.DepLens.Abstractions.sourcelink.json
+    |   |   |           |   ImanSoftware.DepLens.Abstractions.xml
     |   |   |           |   
     |   |   |           +---ref
     |   |   |           |       ImanSoftware.DepLens.Abstractions.dll
@@ -95,13 +129,25 @@ G:.
     |       |   ImanSoftware.DepLens.Core.csproj
     |       |   
     |       +---bin
-    |       |   \---Debug
+    |       |   +---Debug
+    |       |   |   \---net10.0
+    |       |   |           ImanSoftware.DepLens.Abstractions.dll
+    |       |   |           ImanSoftware.DepLens.Abstractions.pdb
+    |       |   |           ImanSoftware.DepLens.Abstractions.xml
+    |       |   |           ImanSoftware.DepLens.Core.deps.json
+    |       |   |           ImanSoftware.DepLens.Core.dll
+    |       |   |           ImanSoftware.DepLens.Core.pdb
+    |       |   |           ImanSoftware.DepLens.Core.xml
+    |       |   |           
+    |       |   \---Release
     |       |       \---net10.0
     |       |               ImanSoftware.DepLens.Abstractions.dll
     |       |               ImanSoftware.DepLens.Abstractions.pdb
+    |       |               ImanSoftware.DepLens.Abstractions.xml
     |       |               ImanSoftware.DepLens.Core.deps.json
     |       |               ImanSoftware.DepLens.Core.dll
     |       |               ImanSoftware.DepLens.Core.pdb
+    |       |               ImanSoftware.DepLens.Core.xml
     |       |               
     |       +---Factory
     |       |       DepLensServiceFactory.cs
@@ -122,7 +168,31 @@ G:.
     |           |   project.assets.json
     |           |   project.nuget.cache
     |           |   
-    |           \---Debug
+    |           +---Debug
+    |           |   \---net10.0
+    |           |       |   .NETCoreApp,Version=v10.0.AssemblyAttributes.cs
+    |           |       |   ImanSoft.214A8546.Up2Date
+    |           |       |   ImanSoftware.DepLens.Core.AssemblyInfo.cs
+    |           |       |   ImanSoftware.DepLens.Core.AssemblyInfoInputs.cache
+    |           |       |   ImanSoftware.DepLens.Core.assets.cache
+    |           |       |   ImanSoftware.DepLens.Core.csproj.AssemblyReference.cache
+    |           |       |   ImanSoftware.DepLens.Core.csproj.BuildWithSkipAnalyzers
+    |           |       |   ImanSoftware.DepLens.Core.csproj.CoreCompileInputs.cache
+    |           |       |   ImanSoftware.DepLens.Core.csproj.FileListAbsolute.txt
+    |           |       |   ImanSoftware.DepLens.Core.dll
+    |           |       |   ImanSoftware.DepLens.Core.GeneratedMSBuildEditorConfig.editorconfig
+    |           |       |   ImanSoftware.DepLens.Core.GlobalUsings.g.cs
+    |           |       |   ImanSoftware.DepLens.Core.pdb
+    |           |       |   ImanSoftware.DepLens.Core.sourcelink.json
+    |           |       |   ImanSoftware.DepLens.Core.xml
+    |           |       |   
+    |           |       +---ref
+    |           |       |       ImanSoftware.DepLens.Core.dll
+    |           |       |       
+    |           |       \---refint
+    |           |               ImanSoftware.DepLens.Core.dll
+    |           |               
+    |           \---Release
     |               \---net10.0
     |                   |   .NETCoreApp,Version=v10.0.AssemblyAttributes.cs
     |                   |   ImanSoft.214A8546.Up2Date
@@ -130,7 +200,6 @@ G:.
     |                   |   ImanSoftware.DepLens.Core.AssemblyInfoInputs.cache
     |                   |   ImanSoftware.DepLens.Core.assets.cache
     |                   |   ImanSoftware.DepLens.Core.csproj.AssemblyReference.cache
-    |                   |   ImanSoftware.DepLens.Core.csproj.BuildWithSkipAnalyzers
     |                   |   ImanSoftware.DepLens.Core.csproj.CoreCompileInputs.cache
     |                   |   ImanSoftware.DepLens.Core.csproj.FileListAbsolute.txt
     |                   |   ImanSoftware.DepLens.Core.dll
@@ -138,6 +207,7 @@ G:.
     |                   |   ImanSoftware.DepLens.Core.GlobalUsings.g.cs
     |                   |   ImanSoftware.DepLens.Core.pdb
     |                   |   ImanSoftware.DepLens.Core.sourcelink.json
+    |                   |   ImanSoftware.DepLens.Core.xml
     |                   |   
     |                   +---ref
     |                   |       ImanSoftware.DepLens.Core.dll
@@ -145,61 +215,318 @@ G:.
     |                   \---refint
     |                           ImanSoftware.DepLens.Core.dll
     |                           
-    \---Playground
-        \---ImanSoftware.DepLens.Playground
-            |   ImanSoftware.DepLens.Playground.csproj
+    +---Playground
+    |   \---ImanSoftware.DepLens.Playground
+    |       |   ImanSoftware.DepLens.Playground.csproj
+    |       |   Program.cs
+    |       |   
+    |       +---bin
+    |       |   \---Debug
+    |       |       \---net10.0
+    |       |               ImanSoftware.DepLens.Abstractions.dll
+    |       |               ImanSoftware.DepLens.Abstractions.pdb
+    |       |               ImanSoftware.DepLens.Abstractions.xml
+    |       |               ImanSoftware.DepLens.Core.dll
+    |       |               ImanSoftware.DepLens.Core.pdb
+    |       |               ImanSoftware.DepLens.Core.xml
+    |       |               ImanSoftware.DepLens.Playground.deps.json
+    |       |               ImanSoftware.DepLens.Playground.dll
+    |       |               ImanSoftware.DepLens.Playground.exe
+    |       |               ImanSoftware.DepLens.Playground.pdb
+    |       |               ImanSoftware.DepLens.Playground.runtimeconfig.json
+    |       |               ImanSoftware.DepLens.Playground.xml
+    |       |               ImanSoftware.Extensions.dll
+    |       |               ImanSoftware.FileStorage.dll
+    |       |               ImanSoftware.Logging.dll
+    |       |               ImanSoftware.Outcome.dll
+    |       |               Microsoft.Extensions.DependencyInjection.Abstractions.dll
+    |       |               Microsoft.Extensions.Logging.Abstractions.dll
+    |       |               Microsoft.Extensions.Options.dll
+    |       |               Microsoft.Extensions.Primitives.dll
+    |       |               
+    |       \---obj
+    |           |   ImanSoftware.DepLens.Playground.csproj.nuget.dgspec.json
+    |           |   ImanSoftware.DepLens.Playground.csproj.nuget.g.props
+    |           |   ImanSoftware.DepLens.Playground.csproj.nuget.g.targets
+    |           |   project.assets.json
+    |           |   project.nuget.cache
+    |           |   
+    |           \---Debug
+    |               \---net10.0
+    |                   |   .NETCoreApp,Version=v10.0.AssemblyAttributes.cs
+    |                   |   apphost.exe
+    |                   |   ImanSoft.CFCC2479.Up2Date
+    |                   |   ImanSoftware.DepLens.Playground.AssemblyInfo.cs
+    |                   |   ImanSoftware.DepLens.Playground.AssemblyInfoInputs.cache
+    |                   |   ImanSoftware.DepLens.Playground.assets.cache
+    |                   |   ImanSoftware.DepLens.Playground.csproj.AssemblyReference.cache
+    |                   |   ImanSoftware.DepLens.Playground.csproj.BuildWithSkipAnalyzers
+    |                   |   ImanSoftware.DepLens.Playground.csproj.CoreCompileInputs.cache
+    |                   |   ImanSoftware.DepLens.Playground.csproj.FileListAbsolute.txt
+    |                   |   ImanSoftware.DepLens.Playground.dll
+    |                   |   ImanSoftware.DepLens.Playground.GeneratedMSBuildEditorConfig.editorconfig
+    |                   |   ImanSoftware.DepLens.Playground.genruntimeconfig.cache
+    |                   |   ImanSoftware.DepLens.Playground.GlobalUsings.g.cs
+    |                   |   ImanSoftware.DepLens.Playground.pdb
+    |                   |   ImanSoftware.DepLens.Playground.sourcelink.json
+    |                   |   ImanSoftware.DepLens.Playground.xml
+    |                   |   
+    |                   +---ref
+    |                   |       ImanSoftware.DepLens.Playground.dll
+    |                   |       
+    |                   \---refint
+    |                           ImanSoftware.DepLens.Playground.dll
+    |                           
+    \---UI
+        \---ImanSoftware.DepLens.Cli
+            |   icon.png
+            |   ImanSoftware.DepLens.Cli.csproj
             |   Program.cs
+            |   publish.bat
+            |   README.md
             |   
             +---bin
-            |   \---Debug
+            |   +---Debug
+            |   |   \---net10.0
+            |   |       |   ImanSoftware.DepLens.Abstractions.dll
+            |   |       |   ImanSoftware.DepLens.Abstractions.pdb
+            |   |       |   ImanSoftware.DepLens.Abstractions.xml
+            |   |       |   ImanSoftware.DepLens.Cli.deps.json
+            |   |       |   ImanSoftware.DepLens.Cli.dll
+            |   |       |   ImanSoftware.DepLens.Cli.exe
+            |   |       |   ImanSoftware.DepLens.Cli.pdb
+            |   |       |   ImanSoftware.DepLens.Cli.runtimeconfig.json
+            |   |       |   ImanSoftware.DepLens.Cli.xml
+            |   |       |   ImanSoftware.DepLens.Core.dll
+            |   |       |   ImanSoftware.DepLens.Core.pdb
+            |   |       |   ImanSoftware.DepLens.Core.xml
+            |   |       |   ImanSoftware.Extensions.dll
+            |   |       |   ImanSoftware.FileStorage.dll
+            |   |       |   ImanSoftware.Logging.dll
+            |   |       |   ImanSoftware.Outcome.dll
+            |   |       |   Microsoft.Extensions.DependencyInjection.Abstractions.dll
+            |   |       |   Microsoft.Extensions.Logging.Abstractions.dll
+            |   |       |   Microsoft.Extensions.Options.dll
+            |   |       |   Microsoft.Extensions.Primitives.dll
+            |   |       |   Spectre.Console.Ansi.dll
+            |   |       |   Spectre.Console.Cli.dll
+            |   |       |   Spectre.Console.dll
+            |   |       |   
+            |   |       +---cs
+            |   |       +---de
+            |   |       |       Spectre.Console.Cli.resources.dll
+            |   |       |       
+            |   |       +---es
+            |   |       |       Spectre.Console.Cli.resources.dll
+            |   |       |       
+            |   |       +---fr
+            |   |       |       Spectre.Console.Cli.resources.dll
+            |   |       |       
+            |   |       +---it
+            |   |       |       Spectre.Console.Cli.resources.dll
+            |   |       |       
+            |   |       +---ja
+            |   |       |       Spectre.Console.Cli.resources.dll
+            |   |       |       
+            |   |       +---ko
+            |   |       |       Spectre.Console.Cli.resources.dll
+            |   |       |       
+            |   |       +---pl
+            |   |       +---pt
+            |   |       |       Spectre.Console.Cli.resources.dll
+            |   |       |       
+            |   |       +---pt-BR
+            |   |       +---ru
+            |   |       |       Spectre.Console.Cli.resources.dll
+            |   |       |       
+            |   |       +---sv
+            |   |       |       Spectre.Console.Cli.resources.dll
+            |   |       |       
+            |   |       +---tr
+            |   |       +---zh-Hans
+            |   |       |       Spectre.Console.Cli.resources.dll
+            |   |       |       
+            |   |       \---zh-Hant
+            |   \---Release
             |       \---net10.0
-            |               ImanSoftware.DepLens.Abstractions.dll
-            |               ImanSoftware.DepLens.Abstractions.pdb
-            |               ImanSoftware.DepLens.Core.dll
-            |               ImanSoftware.DepLens.Core.pdb
-            |               ImanSoftware.DepLens.Playground.deps.json
-            |               ImanSoftware.DepLens.Playground.dll
-            |               ImanSoftware.DepLens.Playground.exe
-            |               ImanSoftware.DepLens.Playground.pdb
-            |               ImanSoftware.DepLens.Playground.runtimeconfig.json
-            |               ImanSoftware.Extensions.dll
-            |               ImanSoftware.FileStorage.dll
-            |               ImanSoftware.Logging.dll
-            |               ImanSoftware.Outcome.dll
-            |               Microsoft.Extensions.DependencyInjection.Abstractions.dll
-            |               Microsoft.Extensions.Logging.Abstractions.dll
-            |               Microsoft.Extensions.Options.dll
-            |               Microsoft.Extensions.Primitives.dll
-            |               
+            |           |   ImanSoftware.DepLens.Abstractions.dll
+            |           |   ImanSoftware.DepLens.Abstractions.pdb
+            |           |   ImanSoftware.DepLens.Abstractions.xml
+            |           |   ImanSoftware.DepLens.Cli.deps.json
+            |           |   ImanSoftware.DepLens.Cli.dll
+            |           |   ImanSoftware.DepLens.Cli.exe
+            |           |   ImanSoftware.DepLens.Cli.pdb
+            |           |   ImanSoftware.DepLens.Cli.runtimeconfig.json
+            |           |   ImanSoftware.DepLens.Cli.xml
+            |           |   ImanSoftware.DepLens.Core.dll
+            |           |   ImanSoftware.DepLens.Core.pdb
+            |           |   ImanSoftware.DepLens.Core.xml
+            |           |   ImanSoftware.Extensions.dll
+            |           |   ImanSoftware.FileStorage.dll
+            |           |   ImanSoftware.Logging.dll
+            |           |   ImanSoftware.Outcome.dll
+            |           |   Microsoft.Extensions.DependencyInjection.Abstractions.dll
+            |           |   Microsoft.Extensions.Logging.Abstractions.dll
+            |           |   Microsoft.Extensions.Options.dll
+            |           |   Microsoft.Extensions.Primitives.dll
+            |           |   Spectre.Console.Ansi.dll
+            |           |   Spectre.Console.Cli.dll
+            |           |   Spectre.Console.dll
+            |           |   
+            |           +---de
+            |           |       Spectre.Console.Cli.resources.dll
+            |           |       
+            |           +---es
+            |           |       Spectre.Console.Cli.resources.dll
+            |           |       
+            |           +---fr
+            |           |       Spectre.Console.Cli.resources.dll
+            |           |       
+            |           +---it
+            |           |       Spectre.Console.Cli.resources.dll
+            |           |       
+            |           +---ja
+            |           |       Spectre.Console.Cli.resources.dll
+            |           |       
+            |           +---ko
+            |           |       Spectre.Console.Cli.resources.dll
+            |           |       
+            |           +---pt
+            |           |       Spectre.Console.Cli.resources.dll
+            |           |       
+            |           +---publish
+            |           |   |   ImanSoftware.DepLens.Abstractions.dll
+            |           |   |   ImanSoftware.DepLens.Abstractions.pdb
+            |           |   |   ImanSoftware.DepLens.Abstractions.xml
+            |           |   |   ImanSoftware.DepLens.Cli.deps.json
+            |           |   |   ImanSoftware.DepLens.Cli.dll
+            |           |   |   ImanSoftware.DepLens.Cli.exe
+            |           |   |   ImanSoftware.DepLens.Cli.pdb
+            |           |   |   ImanSoftware.DepLens.Cli.runtimeconfig.json
+            |           |   |   ImanSoftware.DepLens.Cli.xml
+            |           |   |   ImanSoftware.DepLens.Core.dll
+            |           |   |   ImanSoftware.DepLens.Core.pdb
+            |           |   |   ImanSoftware.DepLens.Core.xml
+            |           |   |   ImanSoftware.Extensions.dll
+            |           |   |   ImanSoftware.FileStorage.dll
+            |           |   |   ImanSoftware.Logging.dll
+            |           |   |   ImanSoftware.Outcome.dll
+            |           |   |   Microsoft.Extensions.DependencyInjection.Abstractions.dll
+            |           |   |   Microsoft.Extensions.Logging.Abstractions.dll
+            |           |   |   Microsoft.Extensions.Options.dll
+            |           |   |   Microsoft.Extensions.Primitives.dll
+            |           |   |   Spectre.Console.Ansi.dll
+            |           |   |   Spectre.Console.Cli.dll
+            |           |   |   Spectre.Console.dll
+            |           |   |   
+            |           |   +---de
+            |           |   |       Spectre.Console.Cli.resources.dll
+            |           |   |       
+            |           |   +---es
+            |           |   |       Spectre.Console.Cli.resources.dll
+            |           |   |       
+            |           |   +---fr
+            |           |   |       Spectre.Console.Cli.resources.dll
+            |           |   |       
+            |           |   +---it
+            |           |   |       Spectre.Console.Cli.resources.dll
+            |           |   |       
+            |           |   +---ja
+            |           |   |       Spectre.Console.Cli.resources.dll
+            |           |   |       
+            |           |   +---ko
+            |           |   |       Spectre.Console.Cli.resources.dll
+            |           |   |       
+            |           |   +---pt
+            |           |   |       Spectre.Console.Cli.resources.dll
+            |           |   |       
+            |           |   +---ru
+            |           |   |       Spectre.Console.Cli.resources.dll
+            |           |   |       
+            |           |   +---sv
+            |           |   |       Spectre.Console.Cli.resources.dll
+            |           |   |       
+            |           |   \---zh-Hans
+            |           |           Spectre.Console.Cli.resources.dll
+            |           |           
+            |           +---ru
+            |           |       Spectre.Console.Cli.resources.dll
+            |           |       
+            |           +---sv
+            |           |       Spectre.Console.Cli.resources.dll
+            |           |       
+            |           \---zh-Hans
+            |                   Spectre.Console.Cli.resources.dll
+            |                   
+            +---Commands
+            |   \---Analyze
+            |           AnalyzeCommand.cs
+            |           AnalyzeSettings.cs
+            |           
+            +---Helpers
+            |       ConsoleWriter.cs
+            |       
             \---obj
-                |   ImanSoftware.DepLens.Playground.csproj.nuget.dgspec.json
-                |   ImanSoftware.DepLens.Playground.csproj.nuget.g.props
-                |   ImanSoftware.DepLens.Playground.csproj.nuget.g.targets
+                |   ImanSoftware.DepLens.Cli.csproj.nuget.dgspec.json
+                |   ImanSoftware.DepLens.Cli.csproj.nuget.g.props
+                |   ImanSoftware.DepLens.Cli.csproj.nuget.g.targets
                 |   project.assets.json
                 |   project.nuget.cache
                 |   
-                \---Debug
+                +---Debug
+                |   \---net10.0
+                |       |   .NETCoreApp,Version=v10.0.AssemblyAttributes.cs
+                |       |   apphost.exe
+                |       |   ImanSoft.3828811A.Up2Date
+                |       |   ImanSoftware.DepLens.Cli.AssemblyInfo.cs
+                |       |   ImanSoftware.DepLens.Cli.AssemblyInfoInputs.cache
+                |       |   ImanSoftware.DepLens.Cli.assets.cache
+                |       |   ImanSoftware.DepLens.Cli.csproj.AssemblyReference.cache
+                |       |   ImanSoftware.DepLens.Cli.csproj.CoreCompileInputs.cache
+                |       |   ImanSoftware.DepLens.Cli.csproj.FileListAbsolute.txt
+                |       |   ImanSoftware.DepLens.Cli.dll
+                |       |   ImanSoftware.DepLens.Cli.GeneratedMSBuildEditorConfig.editorconfig
+                |       |   ImanSoftware.DepLens.Cli.genruntimeconfig.cache
+                |       |   ImanSoftware.DepLens.Cli.GlobalUsings.g.cs
+                |       |   ImanSoftware.DepLens.Cli.pdb
+                |       |   ImanSoftware.DepLens.Cli.sourcelink.json
+                |       |   ImanSoftware.DepLens.Cli.xml
+                |       |   
+                |       +---ref
+                |       |       ImanSoftware.DepLens.Cli.dll
+                |       |       
+                |       \---refint
+                |               ImanSoftware.DepLens.Cli.dll
+                |               
+                \---Release
+                    |   ImanSoftware.DepLens.Cli.1.0.0.nuspec
+                    |   
                     \---net10.0
                         |   .NETCoreApp,Version=v10.0.AssemblyAttributes.cs
                         |   apphost.exe
-                        |   ImanSoft.CFCC2479.Up2Date
-                        |   ImanSoftware.DepLens.Playground.AssemblyInfo.cs
-                        |   ImanSoftware.DepLens.Playground.AssemblyInfoInputs.cache
-                        |   ImanSoftware.DepLens.Playground.assets.cache
-                        |   ImanSoftware.DepLens.Playground.csproj.AssemblyReference.cache
-                        |   ImanSoftware.DepLens.Playground.csproj.BuildWithSkipAnalyzers
-                        |   ImanSoftware.DepLens.Playground.csproj.CoreCompileInputs.cache
-                        |   ImanSoftware.DepLens.Playground.csproj.FileListAbsolute.txt
-                        |   ImanSoftware.DepLens.Playground.dll
-                        |   ImanSoftware.DepLens.Playground.GeneratedMSBuildEditorConfig.editorconfig
-                        |   ImanSoftware.DepLens.Playground.genruntimeconfig.cache
-                        |   ImanSoftware.DepLens.Playground.GlobalUsings.g.cs
-                        |   ImanSoftware.DepLens.Playground.pdb
-                        |   ImanSoftware.DepLens.Playground.sourcelink.json
+                        |   DotnetToolSettings.xml
+                        |   ImanSoft.3828811A.Up2Date
+                        |   ImanSoftware.DepLens.Cli.AssemblyInfo.cs
+                        |   ImanSoftware.DepLens.Cli.AssemblyInfoInputs.cache
+                        |   ImanSoftware.DepLens.Cli.assets.cache
+                        |   ImanSoftware.DepLens.Cli.csproj.AssemblyReference.cache
+                        |   ImanSoftware.DepLens.Cli.csproj.CoreCompileInputs.cache
+                        |   ImanSoftware.DepLens.Cli.csproj.FileListAbsolute.txt
+                        |   ImanSoftware.DepLens.Cli.deps.json
+                        |   ImanSoftware.DepLens.Cli.dll
+                        |   ImanSoftware.DepLens.Cli.GeneratedMSBuildEditorConfig.editorconfig
+                        |   ImanSoftware.DepLens.Cli.genpublishdeps.cache
+                        |   ImanSoftware.DepLens.Cli.genruntimeconfig.cache
+                        |   ImanSoftware.DepLens.Cli.GlobalUsings.g.cs
+                        |   ImanSoftware.DepLens.Cli.pdb
+                        |   ImanSoftware.DepLens.Cli.sourcelink.json
+                        |   ImanSoftware.DepLens.Cli.toolssettingsinput.cache
+                        |   ImanSoftware.DepLens.Cli.xml
+                        |   PublishOutputs.5f00fe2b30.txt
                         |   
                         +---ref
-                        |       ImanSoftware.DepLens.Playground.dll
+                        |       ImanSoftware.DepLens.Cli.dll
                         |       
                         \---refint
-                                ImanSoftware.DepLens.Playground.dll
+                                ImanSoftware.DepLens.Cli.dll
                                 
