@@ -10,12 +10,20 @@
   <ItemGroup>
     <PackageReference Include="Spectre.Console" />
     <PackageReference Include="Spectre.Console.Cli" />
-    <PackageReference Include="System.CommandLine" />
   </ItemGroup>
 
   
   <ItemGroup>
     <ProjectReference Include="..\..\Core\ImanSoftware.DepLens.Core\ImanSoftware.DepLens.Core.csproj" />
   </ItemGroup>
+
+  <PropertyGroup>
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>deplens</ToolCommandName>
+    <PackageId>ImanSoftware.DepLens.Cli</PackageId>
+    <Version>0.1.0</Version>
+    <Description>DepLens — Interactive dependency graph analyzer for .NET solutions.</Description>
+    <PackageTags>dotnet;dependency-graph;nuget;msbuild;cli;deplens</PackageTags>
+  </PropertyGroup>
 
 </Project>
