@@ -15,4 +15,7 @@
   <Folder Name="/src/Playground/">
     <Project Path="src/Playground/ImanSoftware.DepLens.Playground/ImanSoftware.DepLens.Playground.csproj" Id="e7dd5387-4bfa-47d8-b439-452af5a5e4e0" />
   </Folder>
+  <Folder Name="/src/UI/">
+    <Project Path="src/UI/ImanSoftware.DepLens.Cli/ImanSoftware.DepLens.Cli.csproj" Id="7957382c-c4d4-43b4-a472-3fb4231839a4" />
+  </Folder>
 </Solution>
