@@ -12,5 +12,8 @@
     <PackageVersion Include="Microsoft.Extensions.Configuration.Json" Version="10.0.11" />
     <PackageVersion Include="Microsoft.Extensions.Options" Version="10.0.11" />
     <PackageVersion Include="SonarAnalyzer.CSharp" Version="10.4.0.108396" />
+    <PackageVersion Include="Spectre.Console" Version="0.57.2" />
+    <PackageVersion Include="Spectre.Console.Cli" Version="0.55.0" />
+    <PackageVersion Include="System.CommandLine" Version="2.0.12" />
   </ItemGroup>
 </Project>
