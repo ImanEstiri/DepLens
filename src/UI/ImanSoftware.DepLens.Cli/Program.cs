@@ -7,7 +7,7 @@ var app = new CommandApp();
 app.Configure(config =>
 {
     config.SetApplicationName("deplens");
-    config.SetApplicationVersion("0.1.0");
+    config.SetApplicationVersion("1.0.0");
 
     config.AddCommand<AnalyzeCommand>("analyze")
     .WithDescription("Analyze a .NET solution and generate a dependency graph.")
