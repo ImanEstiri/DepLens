@@ -1956,7 +1956,12 @@ internal class Program
   <ItemGroup>
     <ProjectReference Include="..\..\Core\ImanSoftware.DepLens.Core\ImanSoftware.DepLens.Core.csproj" />
   </ItemGroup>
-
+  <ItemGroup>
+    <None Include="icon.png" Pack="true" PackagePath="" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="" />
+  </ItemGroup>
   <PropertyGroup>
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>deplens</ToolCommandName>
@@ -1984,7 +1989,7 @@ var app = new CommandApp();
 app.Configure(config =>
 {
     config.SetApplicationName("deplens");
-    config.SetApplicationVersion("0.1.0");
+    config.SetApplicationVersion("1.0.0");
 
     config.AddCommand<AnalyzeCommand>("analyze")
     .WithDescription("Analyze a .NET solution and generate a dependency graph.")
