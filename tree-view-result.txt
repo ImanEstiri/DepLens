@@ -6,17 +6,32 @@ G:.
 |   .gitignore
 |   code-dump-result.md
 |   code-dump.bat
+|   dependency-graph.html
 |   DepLens.slnx
 |   Directory.Build.props
 |   Directory.Packages.props
 |   LICENSE.txt
 |   nuget.config
 |   publish.ps1
+|   README.md
 |   tree-view-result.txt
 |   tree-view.bat
 |   
 +---artifacts
 |   \---ImanSoftware.DepLens.Cli
+|           ImanSoftware.DepLens.Cli.1.0.0.nupkg
+|           ImanSoftware.DepLens.Cli.1.0.0.snupkg
+|           ImanSoftware.DepLens.Cli.1.0.1.nupkg
+|           ImanSoftware.DepLens.Cli.1.0.1.snupkg
+|           
++---docs
+|   \---images
+|           graph-sample-1.gif
+|           graph-sample-2.gif
+|           installation-and-usage.gif
+|           installation-and-verify.gif
+|           usage.gif
+|           
 \---src
     +---Core
     |   +---ImanSoftware.DepLens.Abstractions
@@ -466,67 +481,72 @@ G:.
             +---Helpers
             |       ConsoleWriter.cs
             |       
-            \---obj
-                |   ImanSoftware.DepLens.Cli.csproj.nuget.dgspec.json
-                |   ImanSoftware.DepLens.Cli.csproj.nuget.g.props
-                |   ImanSoftware.DepLens.Cli.csproj.nuget.g.targets
-                |   project.assets.json
-                |   project.nuget.cache
-                |   
-                +---Debug
-                |   \---net10.0
-                |       |   .NETCoreApp,Version=v10.0.AssemblyAttributes.cs
-                |       |   apphost.exe
-                |       |   ImanSoft.3828811A.Up2Date
-                |       |   ImanSoftware.DepLens.Cli.AssemblyInfo.cs
-                |       |   ImanSoftware.DepLens.Cli.AssemblyInfoInputs.cache
-                |       |   ImanSoftware.DepLens.Cli.assets.cache
-                |       |   ImanSoftware.DepLens.Cli.csproj.AssemblyReference.cache
-                |       |   ImanSoftware.DepLens.Cli.csproj.CoreCompileInputs.cache
-                |       |   ImanSoftware.DepLens.Cli.csproj.FileListAbsolute.txt
-                |       |   ImanSoftware.DepLens.Cli.dll
-                |       |   ImanSoftware.DepLens.Cli.GeneratedMSBuildEditorConfig.editorconfig
-                |       |   ImanSoftware.DepLens.Cli.genruntimeconfig.cache
-                |       |   ImanSoftware.DepLens.Cli.GlobalUsings.g.cs
-                |       |   ImanSoftware.DepLens.Cli.pdb
-                |       |   ImanSoftware.DepLens.Cli.sourcelink.json
-                |       |   ImanSoftware.DepLens.Cli.xml
-                |       |   
-                |       +---ref
-                |       |       ImanSoftware.DepLens.Cli.dll
-                |       |       
-                |       \---refint
-                |               ImanSoftware.DepLens.Cli.dll
-                |               
-                \---Release
-                    |   ImanSoftware.DepLens.Cli.1.0.0.nuspec
-                    |   
-                    \---net10.0
-                        |   .NETCoreApp,Version=v10.0.AssemblyAttributes.cs
-                        |   apphost.exe
-                        |   DotnetToolSettings.xml
-                        |   ImanSoft.3828811A.Up2Date
-                        |   ImanSoftware.DepLens.Cli.AssemblyInfo.cs
-                        |   ImanSoftware.DepLens.Cli.AssemblyInfoInputs.cache
-                        |   ImanSoftware.DepLens.Cli.assets.cache
-                        |   ImanSoftware.DepLens.Cli.csproj.AssemblyReference.cache
-                        |   ImanSoftware.DepLens.Cli.csproj.CoreCompileInputs.cache
-                        |   ImanSoftware.DepLens.Cli.csproj.FileListAbsolute.txt
-                        |   ImanSoftware.DepLens.Cli.deps.json
-                        |   ImanSoftware.DepLens.Cli.dll
-                        |   ImanSoftware.DepLens.Cli.GeneratedMSBuildEditorConfig.editorconfig
-                        |   ImanSoftware.DepLens.Cli.genpublishdeps.cache
-                        |   ImanSoftware.DepLens.Cli.genruntimeconfig.cache
-                        |   ImanSoftware.DepLens.Cli.GlobalUsings.g.cs
-                        |   ImanSoftware.DepLens.Cli.pdb
-                        |   ImanSoftware.DepLens.Cli.sourcelink.json
-                        |   ImanSoftware.DepLens.Cli.toolssettingsinput.cache
-                        |   ImanSoftware.DepLens.Cli.xml
-                        |   PublishOutputs.5f00fe2b30.txt
-                        |   
-                        +---ref
-                        |       ImanSoftware.DepLens.Cli.dll
-                        |       
-                        \---refint
-                                ImanSoftware.DepLens.Cli.dll
-                                
+            +---obj
+            |   |   ImanSoftware.DepLens.Cli.csproj.nuget.dgspec.json
+            |   |   ImanSoftware.DepLens.Cli.csproj.nuget.g.props
+            |   |   ImanSoftware.DepLens.Cli.csproj.nuget.g.targets
+            |   |   project.assets.json
+            |   |   project.nuget.cache
+            |   |   
+            |   +---Debug
+            |   |   \---net10.0
+            |   |       |   .NETCoreApp,Version=v10.0.AssemblyAttributes.cs
+            |   |       |   apphost.exe
+            |   |       |   ImanSoft.3828811A.Up2Date
+            |   |       |   ImanSoftware.DepLens.Cli.AssemblyInfo.cs
+            |   |       |   ImanSoftware.DepLens.Cli.AssemblyInfoInputs.cache
+            |   |       |   ImanSoftware.DepLens.Cli.assets.cache
+            |   |       |   ImanSoftware.DepLens.Cli.csproj.AssemblyReference.cache
+            |   |       |   ImanSoftware.DepLens.Cli.csproj.CoreCompileInputs.cache
+            |   |       |   ImanSoftware.DepLens.Cli.csproj.FileListAbsolute.txt
+            |   |       |   ImanSoftware.DepLens.Cli.dll
+            |   |       |   ImanSoftware.DepLens.Cli.GeneratedMSBuildEditorConfig.editorconfig
+            |   |       |   ImanSoftware.DepLens.Cli.genruntimeconfig.cache
+            |   |       |   ImanSoftware.DepLens.Cli.GlobalUsings.g.cs
+            |   |       |   ImanSoftware.DepLens.Cli.pdb
+            |   |       |   ImanSoftware.DepLens.Cli.sourcelink.json
+            |   |       |   ImanSoftware.DepLens.Cli.xml
+            |   |       |   
+            |   |       +---ref
+            |   |       |       ImanSoftware.DepLens.Cli.dll
+            |   |       |       
+            |   |       \---refint
+            |   |               ImanSoftware.DepLens.Cli.dll
+            |   |               
+            |   \---Release
+            |       |   ImanSoftware.DepLens.Cli.1.0.0.nuspec
+            |       |   ImanSoftware.DepLens.Cli.1.0.0.symbols.nuspec
+            |       |   ImanSoftware.DepLens.Cli.1.0.1.nuspec
+            |       |   ImanSoftware.DepLens.Cli.1.0.1.symbols.nuspec
+            |       |   
+            |       \---net10.0
+            |           |   .NETCoreApp,Version=v10.0.AssemblyAttributes.cs
+            |           |   apphost.exe
+            |           |   DotnetToolSettings.xml
+            |           |   ImanSoft.3828811A.Up2Date
+            |           |   ImanSoftware.DepLens.Cli.AssemblyInfo.cs
+            |           |   ImanSoftware.DepLens.Cli.AssemblyInfoInputs.cache
+            |           |   ImanSoftware.DepLens.Cli.assets.cache
+            |           |   ImanSoftware.DepLens.Cli.csproj.AssemblyReference.cache
+            |           |   ImanSoftware.DepLens.Cli.csproj.CoreCompileInputs.cache
+            |           |   ImanSoftware.DepLens.Cli.csproj.FileListAbsolute.txt
+            |           |   ImanSoftware.DepLens.Cli.deps.json
+            |           |   ImanSoftware.DepLens.Cli.dll
+            |           |   ImanSoftware.DepLens.Cli.GeneratedMSBuildEditorConfig.editorconfig
+            |           |   ImanSoftware.DepLens.Cli.genpublishdeps.cache
+            |           |   ImanSoftware.DepLens.Cli.genruntimeconfig.cache
+            |           |   ImanSoftware.DepLens.Cli.GlobalUsings.g.cs
+            |           |   ImanSoftware.DepLens.Cli.pdb
+            |           |   ImanSoftware.DepLens.Cli.sourcelink.json
+            |           |   ImanSoftware.DepLens.Cli.toolssettingsinput.cache
+            |           |   ImanSoftware.DepLens.Cli.xml
+            |           |   PublishOutputs.5f00fe2b30.txt
+            |           |   
+            |           +---ref
+            |           |       ImanSoftware.DepLens.Cli.dll
+            |           |       
+            |           \---refint
+            |                   ImanSoftware.DepLens.Cli.dll
+            |                   
+            \---Properties
+                \---PublishProfiles
