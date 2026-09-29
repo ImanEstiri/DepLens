@@ -4,7 +4,7 @@
 
 [![NuGet](https://img.shields.io/nuget/v/ImanSoftware.DepLens.Cli.svg)](https://www.nuget.org/packages/ImanSoftware.DepLens.Cli)
 [![Downloads](https://img.shields.io/nuget/dt/ImanSoftware.DepLens.Cli.svg)](https://www.nuget.org/packages/ImanSoftware.DepLens.Cli)
-[![License: MIT](https://img.shields.io/github/license/ImanEstiri/DepLens.svg)](LICENSE.txt)
+[![License: MIT](https://img.shields.io/github/license/ImanEstiri/DepLens.svg)](https://github.com/ImanEstiri/DepLens/blob/main/LICENSE.txt)
 
 <!-- TODO: add a screenshot or GIF of the report here, e.g. docs/images/report.png -->
 ![DepLens interactive dependency report](docs/images/report.png)
