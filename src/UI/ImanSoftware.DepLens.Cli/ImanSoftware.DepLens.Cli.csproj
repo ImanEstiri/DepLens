@@ -1,18 +1,14 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
-
   <ItemGroup>
     <PackageReference Include="Spectre.Console" />
     <PackageReference Include="Spectre.Console.Cli" />
   </ItemGroup>
-
-  
   <ItemGroup>
     <ProjectReference Include="..\..\Core\ImanSoftware.DepLens.Core\ImanSoftware.DepLens.Core.csproj" />
   </ItemGroup>
@@ -26,10 +22,9 @@
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>deplens</ToolCommandName>
     <PackageId>ImanSoftware.DepLens.Cli</PackageId>
-    <Version>1.0.0</Version>
+    <Version>1.0.1</Version>
     <Description>DepLens — Interactive dependency graph analyzer for .NET solutions.</Description>
     <PackageTags>dotnet;dependency-graph;nuget;msbuild;cli;deplens</PackageTags>
     <PackageIcon>icon.png</PackageIcon>
   </PropertyGroup>
-
 </Project>
