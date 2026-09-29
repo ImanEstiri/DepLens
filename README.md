@@ -2,12 +2,14 @@
 
 **See every solution, project and NuGet package in your codebase — with Central Package Management resolved — in one interactive report.**
 
+DepLens is a dependency-analysis engine for .NET codebases, with a growing set of front ends built on top of it. Today that's a command-line tool; a desktop (Windows Forms) UI is on the roadmap.
+
 [![NuGet](https://img.shields.io/nuget/v/ImanSoftware.DepLens.Cli.svg)](https://www.nuget.org/packages/ImanSoftware.DepLens.Cli)
 [![Downloads](https://img.shields.io/nuget/dt/ImanSoftware.DepLens.Cli.svg)](https://www.nuget.org/packages/ImanSoftware.DepLens.Cli)
-[![License: MIT](https://img.shields.io/github/license/ImanEstiri/DepLens.svg)](https://github.com/ImanEstiri/DepLens/blob/main/LICENSE.txt)
+[![License: MIT](https://img.shields.io/github/license/ImanEstiri/DepLens.svg)](LICENSE.txt)
 
 <!-- TODO: add a screenshot or GIF of the report here, e.g. docs/images/report.png -->
-![DepLens interactive dependency report](docs/images/report.png)
+![DepLens interactive dependency report](docs/images/graph-sample-1.gif)
 
 Point DepLens at a folder — a single repo or a whole monorepo with several solutions — and it produces one self-contained HTML file you can open in any browser. No server, no restore step, no configuration.
 
@@ -113,6 +115,7 @@ DepLens is young. Here is what it does not do yet:
 
 ## Roadmap
 
+- [ ] Windows Forms desktop UI (in addition to the CLI)
 - [ ] Dependency cycle detection
 - [ ] NuGet version conflict detection
 - [ ] JSON output
@@ -132,7 +135,7 @@ DepLens/
 │   │   ├── ImanSoftware.DepLens.Abstractions/   # models and service contracts
 │   │   └── ImanSoftware.DepLens.Core/           # scanner, parser, resolver, graph builder, HTML report
 │   ├── UI/
-│   │   └── ImanSoftware.DepLens.Cli/            # the `deplens` command-line tool
+│   │   └── ImanSoftware.DepLens.Cli/            # the `deplens` command-line tool (today's front end; a desktop UI is planned)
 │   └── Playground/                              # console app for manual testing
 ├── Directory.Build.props
 ├── Directory.Packages.props
