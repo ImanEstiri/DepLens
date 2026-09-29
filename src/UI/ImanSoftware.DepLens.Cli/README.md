@@ -1,159 +1,52 @@
 # DepLens CLI
 
-**DepLens** is a .NET CLI tool for analyzing project and NuGet dependencies and generating an interactive HTML dependency report.
+**Analyze a .NET codebase — one or many solutions — and get an interactive dependency graph as a single HTML file.**
 
-It is designed to give you a quick visual overview of how projects and packages are connected inside a .NET codebase.
+![DepLens interactive dependency report - graph sample 2](https://raw.githubusercontent.com/ImanEstiri/DepLens/main/docs/images/graph-sample-1.gif)
 
-## Installation
+`deplens` is the command-line front end for [DepLens](https://github.com/ImanEstiri/DepLens), a dependency-analysis engine for .NET codebases. It scans a directory for `.sln` / `.slnx` files and `.csproj` projects, resolves Central Package Management versions, and produces a self-contained HTML report you can open in any browser — no server, no restore step.
 
-Install DepLens globally as a .NET tool:
+## Installation and verify
+
+Requires the **.NET 10** runtime.
 
 ```bash
-dotnet tool install --global ImanSoftware.DepLens.Cli
+dotnet tool install --global imansoftware.depLens.cli
 ```
-
-Verify the installation:
-
+Then
 ```bash
 deplens --version
 ```
+![DepLens interactive dependency report](https://raw.githubusercontent.com/ImanEstiri/DepLens/main/docs/images/installation-and-verify.gif)
 
 ## Usage
-
-Analyze the current directory:
 
 ```bash
 deplens analyze
 ```
 
-When no path is provided, DepLens analyzes the directory where the terminal is currently open.
-
-You can also provide a directory explicitly:
-
-```bash
-deplens analyze "C:\Projects\MyApp"
-```
-
-The path should point to a **directory**, not directly to a `.sln` or `.csproj` file.
-
-### Output Directory
-
-By default, the generated report is placed in the directory being analyzed.
-
-To specify a different output directory:
+Point it at a specific folder (it must be a directory, not a `.sln` or `.csproj` file), and optionally choose where the report is written:
 
 ```bash
 deplens analyze "C:\Projects\MyApp" --output ".\reports"
 ```
+![DepLens interactive dependency report - usage sample](https://raw.githubusercontent.com/ImanEstiri/DepLens/main/docs/images/usage.gif)
+Then open the generated `dependency-graph.html` in a browser.
+![DepLens interactive dependency report - graph sample 2](https://raw.githubusercontent.com/ImanEstiri/DepLens/main/docs/images/graph-sample-2.gif)
 
-Or use the short option:
+## What you get
 
-```bash
-deplens analyze "C:\Projects\MyApp" -o ".\reports"
-```
+- A package-level dependency graph and a solution-architecture view, in one report
+- Solutions grouped visually, including projects shared across solutions
+- Central Package Management resolved per project, with the version source (explicit, central, or override) shown
+- A tree sidebar that stays in sync with the graph — click either one to explore
 
-The generated report can then be opened in any modern web browser.
+## Learn more
 
-## Currently Available
+Full documentation, known limitations, the roadmap, and how to build from source or contribute all live in the main repository:
 
-### 🔍 Project Analysis
-
-- Analyze .NET projects inside a directory
-- Detect `ProjectReference` relationships
-- Resolve project dependencies
-- Detect external project references
-
-### 📦 NuGet Analysis
-
-- Detect NuGet `PackageReference` dependencies
-- Identify direct package dependencies
-- Identify transitive package dependencies
-- Display package versions
-- Support Central Package Management
-- Detect package version sources
-
-### 🌐 Interactive HTML Report
-
-DepLens generates an interactive HTML report containing:
-
-- Project dependency graph
-- NuGet package dependency graph
-- Solution-based project grouping
-- Project and package details
-- Dependency highlighting
-- Search and navigation
-- Dependency relationships and versions
-
-The generated report is completely self-contained and can be opened directly in a browser.
-
-## Example
-
-```bash
-deplens analyze
-```
-
-Example output:
-
-```text
-────────────────────────────────────────────── DepLens
-Scanning : C:\Projects\MyApp
-Output   : C:\Projects\MyApp
-
-✓ Analyzed 12 project(s)
-✓ Report: C:\Projects\MyApp\dependency-graph.html
-
-Open: C:\Projects\MyApp\dependency-graph.html
-```
-
-## Coming Soon
-
-The following features are planned for future releases:
-
-- ⏳ Dependency cycle detection
-- ⏳ NuGet version conflict detection
-- ⏳ JSON output
-- ⏳ Additional report formats
-- ⏳ Dependency path analysis
-- ⏳ Architecture rules
-- ⏳ CI/CD integration
-- ⏳ Advanced graph filtering
-- ⏳ More dependency types
-
-## Development
-
-Clone the repository:
-
-```bash
-git clone https://github.com/ImanEstiri/DepLens.git
-cd DepLens
-```
-
-Build the solution:
-
-```bash
-dotnet build
-```
-
-Run the CLI directly from source:
-
-```bash
-dotnet run --project src/UI/ImanSoftware.DepLens.Cli -- analyze
-```
-
-Or analyze a specific directory:
-
-```bash
-dotnet run --project src/UI/ImanSoftware.DepLens.Cli -- analyze "C:\Projects\MyApp"
-```
-
-## Project
-
-DepLens is open source and developed for the .NET ecosystem.
-
-Repository:
-
-https://github.com/ImanEstiri/DepLens
+**[github.com/ImanEstiri/DepLens](https://github.com/ImanEstiri/DepLens)**
 
 ## License
 
-See the [`LICENSE`](https://github.com/ImanEstiri/DepLens/blob/main/LICENSE) file for license information.
+MIT — see [LICENSE](https://github.com/ImanEstiri/DepLens/blob/main/LICENSE.txt).
