@@ -2704,10 +2704,15 @@ namespace ImanSoftware.DepLens.Cli.Commands.Analyze;
 
 internal sealed class AnalyzeCommand : AsyncCommand<AnalyzeSettings>
 {
-    protected override async Task<int> ExecuteAsync(CommandContext context, AnalyzeSettings settings,CancellationToken _)
+    protected override async Task<int> ExecuteAsync(CommandContext context, AnalyzeSettings settings, CancellationToken _)
     {
         var effectivePath = settings.GetEffectivePath();
-        var fullPath = System.IO.Path.GetFullPath(effectivePath);
+        var rawFullPath = System.IO.Path.GetFullPath(effectivePath);
+
+        var fullPath = Directory.Exists(rawFullPath)
+            ? rawFullPath
+            : System.IO.Path.GetDirectoryName(rawFullPath)!;
+
         var outputDirectory = ResolveOutputDirectory(settings.Output, fullPath);
 
         ConsoleWriter.Header(fullPath, outputDirectory);
@@ -2753,23 +2758,19 @@ internal sealed class AnalyzeCommand : AsyncCommand<AnalyzeSettings>
         return 0;
     }
 
-    private static string ResolveOutputDirectory(string? outputOption, string scannedPath)
+    private static string ResolveOutputDirectory(string? outputOption, string scannedDirectory)
     {
         if (!string.IsNullOrWhiteSpace(outputOption))
         {
             var outputFull = System.IO.Path.GetFullPath(outputOption);
 
-            // اگر مسیر به یک فایل اشاره می‌کند (پسوند دارد و پوشه نیست)، پوشه‌اش را برگردان
             if (System.IO.Path.HasExtension(outputFull) && !Directory.Exists(outputFull))
                 return System.IO.Path.GetDirectoryName(outputFull)!;
 
             return outputFull;
         }
 
-        // پیش‌فرض: اگر مسیر اسکن یک فایل است، پوشه‌اش؛ اگر پوشه است، خودش
-        return Directory.Exists(scannedPath)
-            ? scannedPath
-            : System.IO.Path.GetDirectoryName(scannedPath)!;
+        return scannedDirectory;
     }
 }
 
