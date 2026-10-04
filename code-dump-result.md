@@ -1481,7 +1481,7 @@ internal sealed class DirectoryScannerService : IDirectoryScanner
 ### src > Core > ImanSoftware.DepLens.Core > Implementation > HtmlGraphReportService 
 
 ```csharp 
-﻿using System.Text.Json;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using ImanSoftware.DepLens.Abstractions.Models;
 using ImanSoftware.DepLens.Abstractions.Services;
@@ -1491,6 +1491,12 @@ namespace ImanSoftware.DepLens.Core.Implementation;
 
 internal sealed class HtmlGraphReportService : IHtmlGraphReportService
 {
+    private static readonly JsonSerializerOptions SerializerOptions = new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        Converters = { new JsonStringEnumConverter() }
+    };
+
     public async Task<Outcome<string>> GenerateAsync(
         IReadOnlyList<ProjectDependencyReport> reports,
         string outputDirectory,
@@ -1498,13 +1504,8 @@ internal sealed class HtmlGraphReportService : IHtmlGraphReportService
     {
         try
         {
-            var json = JsonSerializer.Serialize(reports, new JsonSerializerOptions
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                Converters = { new JsonStringEnumConverter() } 
-            });
-
-            var html = HtmlTemplate.Replace("__REPORT_DATA__", json);
+            var json = JsonSerializer.Serialize(reports, SerializerOptions);
+            var html = HtmlTemplate.Replace("__REPORT_DATA__", json, StringComparison.Ordinal);
 
             Directory.CreateDirectory(outputDirectory);
             var outputPath = Path.Combine(outputDirectory, fileName);
@@ -1512,7 +1513,7 @@ internal sealed class HtmlGraphReportService : IHtmlGraphReportService
 
             return Outcome.Successful(outputPath);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException or NotSupportedException or System.Security.SecurityException or JsonException)
         {
             return Outcome.Failure<string>(new OutcomeError(
                 $"Failed to generate HTML report: {ex.Message}",
@@ -2212,7 +2213,7 @@ internal sealed class HtmlGraphReportService : IHtmlGraphReportService
 ### src > Core > ImanSoftware.DepLens.Core > Implementation > ParserService 
 
 ```csharp 
-﻿using System.Text.RegularExpressions;
+using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using ImanSoftware.DepLens.Abstractions.Models;
 using ImanSoftware.DepLens.Abstractions.Services;
@@ -2241,7 +2242,7 @@ internal sealed class ParserService : IParserService
 
             return Task.FromResult(Outcome.Successful(new ParsedFile(file, content)));
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is System.Xml.XmlException or NotSupportedException or InvalidOperationException or ArgumentException or RegexMatchTimeoutException)
         {
             return Task.FromResult(Outcome.Failure<ParsedFile>(new OutcomeError(
                 $"Failed to parse '{file.FullPath}': {ex.Message}",
@@ -2386,7 +2387,7 @@ internal sealed class ParserService : IParserService
 ### src > Core > ImanSoftware.DepLens.Core > Implementation > ProjectOrienterService 
 
 ```csharp 
-﻿using ImanSoftware.DepLens.Abstractions.Models;
+using ImanSoftware.DepLens.Abstractions.Models;
 using ImanSoftware.DepLens.Abstractions.Services;
 using ImanSoftware.Outcomes;
 
@@ -2406,9 +2407,7 @@ internal sealed class ProjectOrienterService : IProjectOrienterService
                 f => NormalizeDirectory(Path.GetDirectoryName(f.Source.FullPath)!),
                 f => (ParsedPackagesProps)f.Content);
 
-        var contexts = new List<ProjectContext>();
-
-        foreach (var project in projectFiles)
+        var contexts = projectFiles.Select(project =>
         {
             var normalizedProjectPath = NormalizePath(project.FullPath);
 
@@ -2419,8 +2418,8 @@ internal sealed class ProjectOrienterService : IProjectOrienterService
 
             var nearestDpp = FindNearestPackagesProps(project.FullPath, packagesPropsByDirectory);
 
-            contexts.Add(new ProjectContext(project.FullPath, owningSolutions, nearestDpp));
-        }
+            return new ProjectContext(project.FullPath, owningSolutions, nearestDpp);
+        }).ToList();
 
         return Task.FromResult(Outcome.Successful(contexts));
     }
@@ -2437,9 +2436,9 @@ internal sealed class ProjectOrienterService : IProjectOrienterService
 
         var map = new Dictionary<string, HashSet<string>>();
 
-        foreach (var solutionFile in parsedSolutions)
+        foreach (var solutionFile in parsedSolutions.Where(file => file.Content is ParsedSolution))
         {
-            if (solutionFile.Content is not ParsedSolution parsedSolution) continue;
+            var parsedSolution = (ParsedSolution)solutionFile.Content;
 
             var solutionDirectory = Path.GetDirectoryName(solutionFile.Source.FullPath)!;
             var resolvedPaths = new HashSet<string>();
@@ -2494,7 +2493,7 @@ internal sealed class ProjectOrienterService : IProjectOrienterService
 ### src > Core > ImanSoftware.DepLens.Core > Implementation > ProjectReferenceLinkerService 
 
 ```csharp 
-﻿using ImanSoftware.DepLens.Abstractions.Models;
+using ImanSoftware.DepLens.Abstractions.Models;
 using ImanSoftware.DepLens.Abstractions.Services;
 using ImanSoftware.Outcomes;
 
@@ -2515,16 +2514,16 @@ internal sealed class ProjectReferenceLinkerService : IProjectReferenceLinkerSer
 
         var results = new List<ResolvedProjectReferences>();
 
-        foreach (var parsedFile in parsedProjects)
+        foreach (var parsedFile in parsedProjects.Where(file => file.Content is ParsedProject))
         {
-            if (parsedFile.Content is not ParsedProject parsedProject) continue;
+            var parsedProject = (ParsedProject)parsedFile.Content;
 
             var projectDirectory = Path.GetDirectoryName(parsedFile.Source.FullPath)!;
             var links = new List<ProjectReferenceLink>();
 
-            foreach (var raw in parsedProject.ProjectReferences)
+            foreach (var referencePath in parsedProject.ProjectReferences.Select(raw => raw.RelativeOrAbsolutePath))
             {
-                var combined = Path.Combine(projectDirectory, raw.RelativeOrAbsolutePath);
+                var combined = Path.Combine(projectDirectory, referencePath);
                 var normalized = NormalizePath(combined);
 
                 if (knownProjectPaths.Contains(normalized))
@@ -2540,7 +2539,7 @@ internal sealed class ProjectReferenceLinkerService : IProjectReferenceLinkerSer
                     continue;
                 }
 
-                links.Add(new ExternalProjectReference(raw.RelativeOrAbsolutePath));
+                links.Add(new ExternalProjectReference(referencePath));
             }
 
             results.Add(new ResolvedProjectReferences(parsedFile.Source.FullPath, links));
@@ -2663,7 +2662,7 @@ internal class Program
 ### src > tests > ImanSoftware.DepLens.Tests > Core > Implementation > ParserServiceTests 
 
 ```csharp 
-﻿using ImanSoftware.DepLens.Abstractions.Models;
+using ImanSoftware.DepLens.Abstractions.Models;
 using ImanSoftware.DepLens.Core.Implementation;
 using System;
 using System.Collections.Generic;
@@ -2673,6 +2672,28 @@ namespace ImanSoftware.DepLens.Tests.Core.Implementation;
 
 public class ParserServiceTests
 {
+    [Fact]
+    public async Task ParseAsync_MalformedXml_ReturnsFailure()
+    {
+        var parser = new ParserService();
+        var file = new DiscoveredFile("Broken.csproj", FileType.Project, "<Project>");
+
+        var result = await parser.ParseAsync(file);
+
+        Assert.False(result.IsSuccess);
+    }
+
+    [Fact]
+    public async Task ParseAsync_UnsupportedFileType_ReturnsFailure()
+    {
+        var parser = new ParserService();
+        var file = new DiscoveredFile("Unknown", (FileType)int.MaxValue, "");
+
+        var result = await parser.ParseAsync(file);
+
+        Assert.False(result.IsSuccess);
+    }
+
     [Fact]
     public async Task ParseAsync_ClassicSolutionWithTwoCSharpProjects_ReturnsBothProjectPaths()
     {
