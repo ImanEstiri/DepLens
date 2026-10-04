@@ -1,4 +1,4 @@
-﻿using ImanSoftware.DepLens.Abstractions.Models;
+using ImanSoftware.DepLens.Abstractions.Models;
 using ImanSoftware.DepLens.Abstractions.Services;
 using ImanSoftware.Outcomes;
 
@@ -19,9 +19,9 @@ internal sealed class ProjectReferenceLinkerService : IProjectReferenceLinkerSer
 
         var results = new List<ResolvedProjectReferences>();
 
-        foreach (var parsedFile in parsedProjects)
+        foreach (var parsedFile in parsedProjects.Where(file => file.Content is ParsedProject))
         {
-            if (parsedFile.Content is not ParsedProject parsedProject) continue;
+            var parsedProject = (ParsedProject)parsedFile.Content;
 
             var projectDirectory = Path.GetDirectoryName(parsedFile.Source.FullPath)!;
             var links = new List<ProjectReferenceLink>();
