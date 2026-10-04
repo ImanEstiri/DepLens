@@ -1,4 +1,4 @@
-﻿using ImanSoftware.DepLens.Abstractions.Models;
+using ImanSoftware.DepLens.Abstractions.Models;
 using ImanSoftware.DepLens.Core.Implementation;
 using System;
 using System.Collections.Generic;
@@ -8,6 +8,28 @@ namespace ImanSoftware.DepLens.Tests.Core.Implementation;
 
 public class ParserServiceTests
 {
+    [Fact]
+    public async Task ParseAsync_MalformedXml_ReturnsFailure()
+    {
+        var parser = new ParserService();
+        var file = new DiscoveredFile("Broken.csproj", FileType.Project, "<Project>");
+
+        var result = await parser.ParseAsync(file);
+
+        Assert.False(result.IsSuccess);
+    }
+
+    [Fact]
+    public async Task ParseAsync_UnsupportedFileType_ReturnsFailure()
+    {
+        var parser = new ParserService();
+        var file = new DiscoveredFile("Unknown", (FileType)int.MaxValue, "");
+
+        var result = await parser.ParseAsync(file);
+
+        Assert.False(result.IsSuccess);
+    }
+
     [Fact]
     public async Task ParseAsync_ClassicSolutionWithTwoCSharpProjects_ReturnsBothProjectPaths()
     {

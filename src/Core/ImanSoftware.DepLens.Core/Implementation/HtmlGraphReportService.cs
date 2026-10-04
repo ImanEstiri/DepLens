@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using ImanSoftware.DepLens.Abstractions.Models;
 using ImanSoftware.DepLens.Abstractions.Services;
@@ -8,6 +8,12 @@ namespace ImanSoftware.DepLens.Core.Implementation;
 
 internal sealed class HtmlGraphReportService : IHtmlGraphReportService
 {
+    private static readonly JsonSerializerOptions SerializerOptions = new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        Converters = { new JsonStringEnumConverter() }
+    };
+
     public async Task<Outcome<string>> GenerateAsync(
         IReadOnlyList<ProjectDependencyReport> reports,
         string outputDirectory,
@@ -15,13 +21,8 @@ internal sealed class HtmlGraphReportService : IHtmlGraphReportService
     {
         try
         {
-            var json = JsonSerializer.Serialize(reports, new JsonSerializerOptions
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                Converters = { new JsonStringEnumConverter() } 
-            });
-
-            var html = HtmlTemplate.Replace("__REPORT_DATA__", json);
+            var json = JsonSerializer.Serialize(reports, SerializerOptions);
+            var html = HtmlTemplate.Replace("__REPORT_DATA__", json, StringComparison.Ordinal);
 
             Directory.CreateDirectory(outputDirectory);
             var outputPath = Path.Combine(outputDirectory, fileName);
@@ -29,7 +30,7 @@ internal sealed class HtmlGraphReportService : IHtmlGraphReportService
 
             return Outcome.Successful(outputPath);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException or NotSupportedException or System.Security.SecurityException or JsonException)
         {
             return Outcome.Failure<string>(new OutcomeError(
                 $"Failed to generate HTML report: {ex.Message}",

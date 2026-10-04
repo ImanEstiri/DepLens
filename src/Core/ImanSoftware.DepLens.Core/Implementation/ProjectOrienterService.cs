@@ -1,4 +1,4 @@
-﻿using ImanSoftware.DepLens.Abstractions.Models;
+using ImanSoftware.DepLens.Abstractions.Models;
 using ImanSoftware.DepLens.Abstractions.Services;
 using ImanSoftware.Outcomes;
 
@@ -18,9 +18,7 @@ internal sealed class ProjectOrienterService : IProjectOrienterService
                 f => NormalizeDirectory(Path.GetDirectoryName(f.Source.FullPath)!),
                 f => (ParsedPackagesProps)f.Content);
 
-        var contexts = new List<ProjectContext>();
-
-        foreach (var project in projectFiles)
+        var contexts = projectFiles.Select(project =>
         {
             var normalizedProjectPath = NormalizePath(project.FullPath);
 
@@ -31,8 +29,8 @@ internal sealed class ProjectOrienterService : IProjectOrienterService
 
             var nearestDpp = FindNearestPackagesProps(project.FullPath, packagesPropsByDirectory);
 
-            contexts.Add(new ProjectContext(project.FullPath, owningSolutions, nearestDpp));
-        }
+            return new ProjectContext(project.FullPath, owningSolutions, nearestDpp);
+        }).ToList();
 
         return Task.FromResult(Outcome.Successful(contexts));
     }
@@ -49,9 +47,9 @@ internal sealed class ProjectOrienterService : IProjectOrienterService
 
         var map = new Dictionary<string, HashSet<string>>();
 
-        foreach (var solutionFile in parsedSolutions)
+        foreach (var solutionFile in parsedSolutions.Where(file => file.Content is ParsedSolution))
         {
-            if (solutionFile.Content is not ParsedSolution parsedSolution) continue;
+            var parsedSolution = (ParsedSolution)solutionFile.Content;
 
             var solutionDirectory = Path.GetDirectoryName(solutionFile.Source.FullPath)!;
             var resolvedPaths = new HashSet<string>();
