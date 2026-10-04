@@ -26,9 +26,9 @@ internal sealed class ProjectReferenceLinkerService : IProjectReferenceLinkerSer
             var projectDirectory = Path.GetDirectoryName(parsedFile.Source.FullPath)!;
             var links = new List<ProjectReferenceLink>();
 
-            foreach (var raw in parsedProject.ProjectReferences)
+            foreach (var referencePath in parsedProject.ProjectReferences.Select(raw => raw.RelativeOrAbsolutePath))
             {
-                var combined = Path.Combine(projectDirectory, raw.RelativeOrAbsolutePath);
+                var combined = Path.Combine(projectDirectory, referencePath);
                 var normalized = NormalizePath(combined);
 
                 if (knownProjectPaths.Contains(normalized))
@@ -44,7 +44,7 @@ internal sealed class ProjectReferenceLinkerService : IProjectReferenceLinkerSer
                     continue;
                 }
 
-                links.Add(new ExternalProjectReference(raw.RelativeOrAbsolutePath));
+                links.Add(new ExternalProjectReference(referencePath));
             }
 
             results.Add(new ResolvedProjectReferences(parsedFile.Source.FullPath, links));
