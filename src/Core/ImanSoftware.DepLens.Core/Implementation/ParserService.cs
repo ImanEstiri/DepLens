@@ -1,4 +1,4 @@
-﻿using System.Text.RegularExpressions;
+using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using ImanSoftware.DepLens.Abstractions.Models;
 using ImanSoftware.DepLens.Abstractions.Services;
@@ -27,7 +27,7 @@ internal sealed class ParserService : IParserService
 
             return Task.FromResult(Outcome.Successful(new ParsedFile(file, content)));
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is System.Xml.XmlException or NotSupportedException or InvalidOperationException or ArgumentException or RegexMatchTimeoutException)
         {
             return Task.FromResult(Outcome.Failure<ParsedFile>(new OutcomeError(
                 $"Failed to parse '{file.FullPath}': {ex.Message}",
