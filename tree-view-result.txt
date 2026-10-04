@@ -88,7 +88,6 @@ G:.
     |   |   |   +---Debug
     |   |   |   |   \---net10.0
     |   |   |   |       |   .NETCoreApp,Version=v10.0.AssemblyAttributes.cs
-    |   |   |   |       |   ImanSoft.C1418928.Up2Date
     |   |   |   |       |   ImanSoftware.DepLens.Abstractions.AssemblyInfo.cs
     |   |   |   |       |   ImanSoftware.DepLens.Abstractions.AssemblyInfoInputs.cache
     |   |   |   |       |   ImanSoftware.DepLens.Abstractions.assets.cache
@@ -176,67 +175,93 @@ G:.
     |       |       ProjectOrienterService.cs
     |       |       ProjectReferenceLinkerService.cs
     |       |       
-    |       \---obj
-    |           |   ImanSoftware.DepLens.Core.csproj.nuget.dgspec.json
-    |           |   ImanSoftware.DepLens.Core.csproj.nuget.g.props
-    |           |   ImanSoftware.DepLens.Core.csproj.nuget.g.targets
-    |           |   project.assets.json
-    |           |   project.nuget.cache
-    |           |   
-    |           +---Debug
-    |           |   \---net10.0
-    |           |       |   .NETCoreApp,Version=v10.0.AssemblyAttributes.cs
-    |           |       |   ImanSoft.214A8546.Up2Date
-    |           |       |   ImanSoftware.DepLens.Core.AssemblyInfo.cs
-    |           |       |   ImanSoftware.DepLens.Core.AssemblyInfoInputs.cache
-    |           |       |   ImanSoftware.DepLens.Core.assets.cache
-    |           |       |   ImanSoftware.DepLens.Core.csproj.AssemblyReference.cache
-    |           |       |   ImanSoftware.DepLens.Core.csproj.BuildWithSkipAnalyzers
-    |           |       |   ImanSoftware.DepLens.Core.csproj.CoreCompileInputs.cache
-    |           |       |   ImanSoftware.DepLens.Core.csproj.FileListAbsolute.txt
-    |           |       |   ImanSoftware.DepLens.Core.dll
-    |           |       |   ImanSoftware.DepLens.Core.GeneratedMSBuildEditorConfig.editorconfig
-    |           |       |   ImanSoftware.DepLens.Core.GlobalUsings.g.cs
-    |           |       |   ImanSoftware.DepLens.Core.pdb
-    |           |       |   ImanSoftware.DepLens.Core.sourcelink.json
-    |           |       |   ImanSoftware.DepLens.Core.xml
-    |           |       |   
-    |           |       +---ref
-    |           |       |       ImanSoftware.DepLens.Core.dll
-    |           |       |       
-    |           |       \---refint
-    |           |               ImanSoftware.DepLens.Core.dll
-    |           |               
-    |           \---Release
-    |               \---net10.0
-    |                   |   .NETCoreApp,Version=v10.0.AssemblyAttributes.cs
-    |                   |   ImanSoft.214A8546.Up2Date
-    |                   |   ImanSoftware.DepLens.Core.AssemblyInfo.cs
-    |                   |   ImanSoftware.DepLens.Core.AssemblyInfoInputs.cache
-    |                   |   ImanSoftware.DepLens.Core.assets.cache
-    |                   |   ImanSoftware.DepLens.Core.csproj.AssemblyReference.cache
-    |                   |   ImanSoftware.DepLens.Core.csproj.CoreCompileInputs.cache
-    |                   |   ImanSoftware.DepLens.Core.csproj.FileListAbsolute.txt
-    |                   |   ImanSoftware.DepLens.Core.dll
-    |                   |   ImanSoftware.DepLens.Core.GeneratedMSBuildEditorConfig.editorconfig
-    |                   |   ImanSoftware.DepLens.Core.GlobalUsings.g.cs
-    |                   |   ImanSoftware.DepLens.Core.pdb
-    |                   |   ImanSoftware.DepLens.Core.sourcelink.json
-    |                   |   ImanSoftware.DepLens.Core.xml
-    |                   |   
-    |                   +---ref
-    |                   |       ImanSoftware.DepLens.Core.dll
-    |                   |       
-    |                   \---refint
-    |                           ImanSoftware.DepLens.Core.dll
-    |                           
+    |       +---obj
+    |       |   |   ImanSoftware.DepLens.Core.csproj.nuget.dgspec.json
+    |       |   |   ImanSoftware.DepLens.Core.csproj.nuget.g.props
+    |       |   |   ImanSoftware.DepLens.Core.csproj.nuget.g.targets
+    |       |   |   project.assets.json
+    |       |   |   project.nuget.cache
+    |       |   |   
+    |       |   +---Debug
+    |       |   |   \---net10.0
+    |       |   |       |   .NETCoreApp,Version=v10.0.AssemblyAttributes.cs
+    |       |   |       |   ImanSoft.214A8546.Up2Date
+    |       |   |       |   ImanSoftware.DepLens.Core.AssemblyInfo.cs
+    |       |   |       |   ImanSoftware.DepLens.Core.AssemblyInfoInputs.cache
+    |       |   |       |   ImanSoftware.DepLens.Core.assets.cache
+    |       |   |       |   ImanSoftware.DepLens.Core.csproj.AssemblyReference.cache
+    |       |   |       |   ImanSoftware.DepLens.Core.csproj.BuildWithSkipAnalyzers
+    |       |   |       |   ImanSoftware.DepLens.Core.csproj.CoreCompileInputs.cache
+    |       |   |       |   ImanSoftware.DepLens.Core.csproj.FileListAbsolute.txt
+    |       |   |       |   ImanSoftware.DepLens.Core.dll
+    |       |   |       |   ImanSoftware.DepLens.Core.GeneratedMSBuildEditorConfig.editorconfig
+    |       |   |       |   ImanSoftware.DepLens.Core.GlobalUsings.g.cs
+    |       |   |       |   ImanSoftware.DepLens.Core.pdb
+    |       |   |       |   ImanSoftware.DepLens.Core.sourcelink.json
+    |       |   |       |   ImanSoftware.DepLens.Core.xml
+    |       |   |       |   
+    |       |   |       +---ref
+    |       |   |       |       ImanSoftware.DepLens.Core.dll
+    |       |   |       |       
+    |       |   |       \---refint
+    |       |   |               ImanSoftware.DepLens.Core.dll
+    |       |   |               
+    |       |   \---Release
+    |       |       \---net10.0
+    |       |           |   .NETCoreApp,Version=v10.0.AssemblyAttributes.cs
+    |       |           |   ImanSoft.214A8546.Up2Date
+    |       |           |   ImanSoftware.DepLens.Core.AssemblyInfo.cs
+    |       |           |   ImanSoftware.DepLens.Core.AssemblyInfoInputs.cache
+    |       |           |   ImanSoftware.DepLens.Core.assets.cache
+    |       |           |   ImanSoftware.DepLens.Core.csproj.AssemblyReference.cache
+    |       |           |   ImanSoftware.DepLens.Core.csproj.CoreCompileInputs.cache
+    |       |           |   ImanSoftware.DepLens.Core.csproj.FileListAbsolute.txt
+    |       |           |   ImanSoftware.DepLens.Core.dll
+    |       |           |   ImanSoftware.DepLens.Core.GeneratedMSBuildEditorConfig.editorconfig
+    |       |           |   ImanSoftware.DepLens.Core.GlobalUsings.g.cs
+    |       |           |   ImanSoftware.DepLens.Core.pdb
+    |       |           |   ImanSoftware.DepLens.Core.sourcelink.json
+    |       |           |   ImanSoftware.DepLens.Core.xml
+    |       |           |   
+    |       |           +---ref
+    |       |           |       ImanSoftware.DepLens.Core.dll
+    |       |           |       
+    |       |           \---refint
+    |       |                   ImanSoftware.DepLens.Core.dll
+    |       |                   
+    |       \---Properties
+    |               AssemblyInfo.cs
+    |               
     +---Playground
     |   \---ImanSoftware.DepLens.Playground
     |       |   ImanSoftware.DepLens.Playground.csproj
     |       |   Program.cs
     |       |   
     |       +---bin
-    |       |   \---Debug
+    |       |   +---Debug
+    |       |   |   \---net10.0
+    |       |   |           ImanSoftware.DepLens.Abstractions.dll
+    |       |   |           ImanSoftware.DepLens.Abstractions.pdb
+    |       |   |           ImanSoftware.DepLens.Abstractions.xml
+    |       |   |           ImanSoftware.DepLens.Core.dll
+    |       |   |           ImanSoftware.DepLens.Core.pdb
+    |       |   |           ImanSoftware.DepLens.Core.xml
+    |       |   |           ImanSoftware.DepLens.Playground.deps.json
+    |       |   |           ImanSoftware.DepLens.Playground.dll
+    |       |   |           ImanSoftware.DepLens.Playground.exe
+    |       |   |           ImanSoftware.DepLens.Playground.pdb
+    |       |   |           ImanSoftware.DepLens.Playground.runtimeconfig.json
+    |       |   |           ImanSoftware.DepLens.Playground.xml
+    |       |   |           ImanSoftware.Extensions.dll
+    |       |   |           ImanSoftware.FileStorage.dll
+    |       |   |           ImanSoftware.Logging.dll
+    |       |   |           ImanSoftware.Outcome.dll
+    |       |   |           Microsoft.Extensions.DependencyInjection.Abstractions.dll
+    |       |   |           Microsoft.Extensions.Logging.Abstractions.dll
+    |       |   |           Microsoft.Extensions.Options.dll
+    |       |   |           Microsoft.Extensions.Primitives.dll
+    |       |   |           
+    |       |   \---Release
     |       |       \---net10.0
     |       |               ImanSoftware.DepLens.Abstractions.dll
     |       |               ImanSoftware.DepLens.Abstractions.pdb
@@ -266,7 +291,33 @@ G:.
     |           |   project.assets.json
     |           |   project.nuget.cache
     |           |   
-    |           \---Debug
+    |           +---Debug
+    |           |   \---net10.0
+    |           |       |   .NETCoreApp,Version=v10.0.AssemblyAttributes.cs
+    |           |       |   apphost.exe
+    |           |       |   ImanSoft.CFCC2479.Up2Date
+    |           |       |   ImanSoftware.DepLens.Playground.AssemblyInfo.cs
+    |           |       |   ImanSoftware.DepLens.Playground.AssemblyInfoInputs.cache
+    |           |       |   ImanSoftware.DepLens.Playground.assets.cache
+    |           |       |   ImanSoftware.DepLens.Playground.csproj.AssemblyReference.cache
+    |           |       |   ImanSoftware.DepLens.Playground.csproj.BuildWithSkipAnalyzers
+    |           |       |   ImanSoftware.DepLens.Playground.csproj.CoreCompileInputs.cache
+    |           |       |   ImanSoftware.DepLens.Playground.csproj.FileListAbsolute.txt
+    |           |       |   ImanSoftware.DepLens.Playground.dll
+    |           |       |   ImanSoftware.DepLens.Playground.GeneratedMSBuildEditorConfig.editorconfig
+    |           |       |   ImanSoftware.DepLens.Playground.genruntimeconfig.cache
+    |           |       |   ImanSoftware.DepLens.Playground.GlobalUsings.g.cs
+    |           |       |   ImanSoftware.DepLens.Playground.pdb
+    |           |       |   ImanSoftware.DepLens.Playground.sourcelink.json
+    |           |       |   ImanSoftware.DepLens.Playground.xml
+    |           |       |   
+    |           |       +---ref
+    |           |       |       ImanSoftware.DepLens.Playground.dll
+    |           |       |       
+    |           |       \---refint
+    |           |               ImanSoftware.DepLens.Playground.dll
+    |           |               
+    |           \---Release
     |               \---net10.0
     |                   |   .NETCoreApp,Version=v10.0.AssemblyAttributes.cs
     |                   |   apphost.exe
@@ -275,7 +326,6 @@ G:.
     |                   |   ImanSoftware.DepLens.Playground.AssemblyInfoInputs.cache
     |                   |   ImanSoftware.DepLens.Playground.assets.cache
     |                   |   ImanSoftware.DepLens.Playground.csproj.AssemblyReference.cache
-    |                   |   ImanSoftware.DepLens.Playground.csproj.BuildWithSkipAnalyzers
     |                   |   ImanSoftware.DepLens.Playground.csproj.CoreCompileInputs.cache
     |                   |   ImanSoftware.DepLens.Playground.csproj.FileListAbsolute.txt
     |                   |   ImanSoftware.DepLens.Playground.dll
@@ -291,6 +341,332 @@ G:.
     |                   |       
     |                   \---refint
     |                           ImanSoftware.DepLens.Playground.dll
+    |                           
+    +---tests
+    |   \---ImanSoftware.DepLens.Tests
+    |       |   ImanSoftware.DepLens.Tests.csproj
+    |       |   
+    |       +---bin
+    |       |   +---Debug
+    |       |   |   \---net10.0
+    |       |   |       |   .msCoverageSourceRootsMapping_ImanSoftware.DepLens.Tests
+    |       |   |       |   CoverletSourceRootsMapping_ImanSoftware.DepLens.Tests
+    |       |   |       |   ImanSoftware.DepLens.Abstractions.dll
+    |       |   |       |   ImanSoftware.DepLens.Abstractions.pdb
+    |       |   |       |   ImanSoftware.DepLens.Abstractions.xml
+    |       |   |       |   ImanSoftware.DepLens.Core.dll
+    |       |   |       |   ImanSoftware.DepLens.Core.pdb
+    |       |   |       |   ImanSoftware.DepLens.Core.xml
+    |       |   |       |   ImanSoftware.DepLens.Tests.deps.json
+    |       |   |       |   ImanSoftware.DepLens.Tests.dll
+    |       |   |       |   ImanSoftware.DepLens.Tests.pdb
+    |       |   |       |   ImanSoftware.DepLens.Tests.runtimeconfig.json
+    |       |   |       |   ImanSoftware.DepLens.Tests.xml
+    |       |   |       |   ImanSoftware.Extensions.dll
+    |       |   |       |   ImanSoftware.FileStorage.dll
+    |       |   |       |   ImanSoftware.Logging.dll
+    |       |   |       |   ImanSoftware.Outcome.dll
+    |       |   |       |   Microsoft.Extensions.DependencyInjection.Abstractions.dll
+    |       |   |       |   Microsoft.Extensions.Logging.Abstractions.dll
+    |       |   |       |   Microsoft.Extensions.Options.dll
+    |       |   |       |   Microsoft.Extensions.Primitives.dll
+    |       |   |       |   Microsoft.TestPlatform.CommunicationUtilities.dll
+    |       |   |       |   Microsoft.TestPlatform.CoreUtilities.dll
+    |       |   |       |   Microsoft.TestPlatform.CrossPlatEngine.dll
+    |       |   |       |   Microsoft.TestPlatform.PlatformAbstractions.dll
+    |       |   |       |   Microsoft.TestPlatform.Utilities.dll
+    |       |   |       |   Microsoft.VisualStudio.CodeCoverage.Shim.dll
+    |       |   |       |   Microsoft.VisualStudio.TestPlatform.Common.dll
+    |       |   |       |   Microsoft.VisualStudio.TestPlatform.ObjectModel.dll
+    |       |   |       |   Newtonsoft.Json.dll
+    |       |   |       |   testhost.dll
+    |       |   |       |   testhost.exe
+    |       |   |       |   xunit.abstractions.dll
+    |       |   |       |   xunit.assert.dll
+    |       |   |       |   xunit.core.dll
+    |       |   |       |   xunit.execution.dotnet.dll
+    |       |   |       |   xunit.runner.visualstudio.testadapter.dll
+    |       |   |       |   
+    |       |   |       +---cs
+    |       |   |       |       Microsoft.TestPlatform.CommunicationUtilities.resources.dll
+    |       |   |       |       Microsoft.TestPlatform.CoreUtilities.resources.dll
+    |       |   |       |       Microsoft.TestPlatform.CrossPlatEngine.resources.dll
+    |       |   |       |       Microsoft.VisualStudio.TestPlatform.Common.resources.dll
+    |       |   |       |       Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
+    |       |   |       |       
+    |       |   |       +---de
+    |       |   |       |       Microsoft.TestPlatform.CommunicationUtilities.resources.dll
+    |       |   |       |       Microsoft.TestPlatform.CoreUtilities.resources.dll
+    |       |   |       |       Microsoft.TestPlatform.CrossPlatEngine.resources.dll
+    |       |   |       |       Microsoft.VisualStudio.TestPlatform.Common.resources.dll
+    |       |   |       |       Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
+    |       |   |       |       
+    |       |   |       +---es
+    |       |   |       |       Microsoft.TestPlatform.CommunicationUtilities.resources.dll
+    |       |   |       |       Microsoft.TestPlatform.CoreUtilities.resources.dll
+    |       |   |       |       Microsoft.TestPlatform.CrossPlatEngine.resources.dll
+    |       |   |       |       Microsoft.VisualStudio.TestPlatform.Common.resources.dll
+    |       |   |       |       Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
+    |       |   |       |       
+    |       |   |       +---fr
+    |       |   |       |       Microsoft.TestPlatform.CommunicationUtilities.resources.dll
+    |       |   |       |       Microsoft.TestPlatform.CoreUtilities.resources.dll
+    |       |   |       |       Microsoft.TestPlatform.CrossPlatEngine.resources.dll
+    |       |   |       |       Microsoft.VisualStudio.TestPlatform.Common.resources.dll
+    |       |   |       |       Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
+    |       |   |       |       
+    |       |   |       +---it
+    |       |   |       |       Microsoft.TestPlatform.CommunicationUtilities.resources.dll
+    |       |   |       |       Microsoft.TestPlatform.CoreUtilities.resources.dll
+    |       |   |       |       Microsoft.TestPlatform.CrossPlatEngine.resources.dll
+    |       |   |       |       Microsoft.VisualStudio.TestPlatform.Common.resources.dll
+    |       |   |       |       Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
+    |       |   |       |       
+    |       |   |       +---ja
+    |       |   |       |       Microsoft.TestPlatform.CommunicationUtilities.resources.dll
+    |       |   |       |       Microsoft.TestPlatform.CoreUtilities.resources.dll
+    |       |   |       |       Microsoft.TestPlatform.CrossPlatEngine.resources.dll
+    |       |   |       |       Microsoft.VisualStudio.TestPlatform.Common.resources.dll
+    |       |   |       |       Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
+    |       |   |       |       
+    |       |   |       +---ko
+    |       |   |       |       Microsoft.TestPlatform.CommunicationUtilities.resources.dll
+    |       |   |       |       Microsoft.TestPlatform.CoreUtilities.resources.dll
+    |       |   |       |       Microsoft.TestPlatform.CrossPlatEngine.resources.dll
+    |       |   |       |       Microsoft.VisualStudio.TestPlatform.Common.resources.dll
+    |       |   |       |       Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
+    |       |   |       |       
+    |       |   |       +---pl
+    |       |   |       |       Microsoft.TestPlatform.CommunicationUtilities.resources.dll
+    |       |   |       |       Microsoft.TestPlatform.CoreUtilities.resources.dll
+    |       |   |       |       Microsoft.TestPlatform.CrossPlatEngine.resources.dll
+    |       |   |       |       Microsoft.VisualStudio.TestPlatform.Common.resources.dll
+    |       |   |       |       Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
+    |       |   |       |       
+    |       |   |       +---pt-BR
+    |       |   |       |       Microsoft.TestPlatform.CommunicationUtilities.resources.dll
+    |       |   |       |       Microsoft.TestPlatform.CoreUtilities.resources.dll
+    |       |   |       |       Microsoft.TestPlatform.CrossPlatEngine.resources.dll
+    |       |   |       |       Microsoft.VisualStudio.TestPlatform.Common.resources.dll
+    |       |   |       |       Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
+    |       |   |       |       
+    |       |   |       +---ru
+    |       |   |       |       Microsoft.TestPlatform.CommunicationUtilities.resources.dll
+    |       |   |       |       Microsoft.TestPlatform.CoreUtilities.resources.dll
+    |       |   |       |       Microsoft.TestPlatform.CrossPlatEngine.resources.dll
+    |       |   |       |       Microsoft.VisualStudio.TestPlatform.Common.resources.dll
+    |       |   |       |       Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
+    |       |   |       |       
+    |       |   |       +---tr
+    |       |   |       |       Microsoft.TestPlatform.CommunicationUtilities.resources.dll
+    |       |   |       |       Microsoft.TestPlatform.CoreUtilities.resources.dll
+    |       |   |       |       Microsoft.TestPlatform.CrossPlatEngine.resources.dll
+    |       |   |       |       Microsoft.VisualStudio.TestPlatform.Common.resources.dll
+    |       |   |       |       Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
+    |       |   |       |       
+    |       |   |       +---zh-Hans
+    |       |   |       |       Microsoft.TestPlatform.CommunicationUtilities.resources.dll
+    |       |   |       |       Microsoft.TestPlatform.CoreUtilities.resources.dll
+    |       |   |       |       Microsoft.TestPlatform.CrossPlatEngine.resources.dll
+    |       |   |       |       Microsoft.VisualStudio.TestPlatform.Common.resources.dll
+    |       |   |       |       Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
+    |       |   |       |       
+    |       |   |       \---zh-Hant
+    |       |   |               Microsoft.TestPlatform.CommunicationUtilities.resources.dll
+    |       |   |               Microsoft.TestPlatform.CoreUtilities.resources.dll
+    |       |   |               Microsoft.TestPlatform.CrossPlatEngine.resources.dll
+    |       |   |               Microsoft.VisualStudio.TestPlatform.Common.resources.dll
+    |       |   |               Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
+    |       |   |               
+    |       |   \---Release
+    |       |       \---net10.0
+    |       |           |   .msCoverageSourceRootsMapping_ImanSoftware.DepLens.Tests
+    |       |           |   CoverletSourceRootsMapping_ImanSoftware.DepLens.Tests
+    |       |           |   ImanSoftware.DepLens.Abstractions.dll
+    |       |           |   ImanSoftware.DepLens.Abstractions.pdb
+    |       |           |   ImanSoftware.DepLens.Abstractions.xml
+    |       |           |   ImanSoftware.DepLens.Core.dll
+    |       |           |   ImanSoftware.DepLens.Core.pdb
+    |       |           |   ImanSoftware.DepLens.Core.xml
+    |       |           |   ImanSoftware.DepLens.Tests.deps.json
+    |       |           |   ImanSoftware.DepLens.Tests.dll
+    |       |           |   ImanSoftware.DepLens.Tests.pdb
+    |       |           |   ImanSoftware.DepLens.Tests.runtimeconfig.json
+    |       |           |   ImanSoftware.DepLens.Tests.xml
+    |       |           |   ImanSoftware.Extensions.dll
+    |       |           |   ImanSoftware.FileStorage.dll
+    |       |           |   ImanSoftware.Logging.dll
+    |       |           |   ImanSoftware.Outcome.dll
+    |       |           |   Microsoft.Extensions.DependencyInjection.Abstractions.dll
+    |       |           |   Microsoft.Extensions.Logging.Abstractions.dll
+    |       |           |   Microsoft.Extensions.Options.dll
+    |       |           |   Microsoft.Extensions.Primitives.dll
+    |       |           |   Microsoft.TestPlatform.CommunicationUtilities.dll
+    |       |           |   Microsoft.TestPlatform.CoreUtilities.dll
+    |       |           |   Microsoft.TestPlatform.CrossPlatEngine.dll
+    |       |           |   Microsoft.TestPlatform.PlatformAbstractions.dll
+    |       |           |   Microsoft.TestPlatform.Utilities.dll
+    |       |           |   Microsoft.VisualStudio.CodeCoverage.Shim.dll
+    |       |           |   Microsoft.VisualStudio.TestPlatform.Common.dll
+    |       |           |   Microsoft.VisualStudio.TestPlatform.ObjectModel.dll
+    |       |           |   Newtonsoft.Json.dll
+    |       |           |   testhost.dll
+    |       |           |   testhost.exe
+    |       |           |   xunit.abstractions.dll
+    |       |           |   xunit.assert.dll
+    |       |           |   xunit.core.dll
+    |       |           |   xunit.execution.dotnet.dll
+    |       |           |   xunit.runner.visualstudio.testadapter.dll
+    |       |           |   
+    |       |           +---cs
+    |       |           |       Microsoft.TestPlatform.CommunicationUtilities.resources.dll
+    |       |           |       Microsoft.TestPlatform.CoreUtilities.resources.dll
+    |       |           |       Microsoft.TestPlatform.CrossPlatEngine.resources.dll
+    |       |           |       Microsoft.VisualStudio.TestPlatform.Common.resources.dll
+    |       |           |       Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
+    |       |           |       
+    |       |           +---de
+    |       |           |       Microsoft.TestPlatform.CommunicationUtilities.resources.dll
+    |       |           |       Microsoft.TestPlatform.CoreUtilities.resources.dll
+    |       |           |       Microsoft.TestPlatform.CrossPlatEngine.resources.dll
+    |       |           |       Microsoft.VisualStudio.TestPlatform.Common.resources.dll
+    |       |           |       Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
+    |       |           |       
+    |       |           +---es
+    |       |           |       Microsoft.TestPlatform.CommunicationUtilities.resources.dll
+    |       |           |       Microsoft.TestPlatform.CoreUtilities.resources.dll
+    |       |           |       Microsoft.TestPlatform.CrossPlatEngine.resources.dll
+    |       |           |       Microsoft.VisualStudio.TestPlatform.Common.resources.dll
+    |       |           |       Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
+    |       |           |       
+    |       |           +---fr
+    |       |           |       Microsoft.TestPlatform.CommunicationUtilities.resources.dll
+    |       |           |       Microsoft.TestPlatform.CoreUtilities.resources.dll
+    |       |           |       Microsoft.TestPlatform.CrossPlatEngine.resources.dll
+    |       |           |       Microsoft.VisualStudio.TestPlatform.Common.resources.dll
+    |       |           |       Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
+    |       |           |       
+    |       |           +---it
+    |       |           |       Microsoft.TestPlatform.CommunicationUtilities.resources.dll
+    |       |           |       Microsoft.TestPlatform.CoreUtilities.resources.dll
+    |       |           |       Microsoft.TestPlatform.CrossPlatEngine.resources.dll
+    |       |           |       Microsoft.VisualStudio.TestPlatform.Common.resources.dll
+    |       |           |       Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
+    |       |           |       
+    |       |           +---ja
+    |       |           |       Microsoft.TestPlatform.CommunicationUtilities.resources.dll
+    |       |           |       Microsoft.TestPlatform.CoreUtilities.resources.dll
+    |       |           |       Microsoft.TestPlatform.CrossPlatEngine.resources.dll
+    |       |           |       Microsoft.VisualStudio.TestPlatform.Common.resources.dll
+    |       |           |       Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
+    |       |           |       
+    |       |           +---ko
+    |       |           |       Microsoft.TestPlatform.CommunicationUtilities.resources.dll
+    |       |           |       Microsoft.TestPlatform.CoreUtilities.resources.dll
+    |       |           |       Microsoft.TestPlatform.CrossPlatEngine.resources.dll
+    |       |           |       Microsoft.VisualStudio.TestPlatform.Common.resources.dll
+    |       |           |       Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
+    |       |           |       
+    |       |           +---pl
+    |       |           |       Microsoft.TestPlatform.CommunicationUtilities.resources.dll
+    |       |           |       Microsoft.TestPlatform.CoreUtilities.resources.dll
+    |       |           |       Microsoft.TestPlatform.CrossPlatEngine.resources.dll
+    |       |           |       Microsoft.VisualStudio.TestPlatform.Common.resources.dll
+    |       |           |       Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
+    |       |           |       
+    |       |           +---pt-BR
+    |       |           |       Microsoft.TestPlatform.CommunicationUtilities.resources.dll
+    |       |           |       Microsoft.TestPlatform.CoreUtilities.resources.dll
+    |       |           |       Microsoft.TestPlatform.CrossPlatEngine.resources.dll
+    |       |           |       Microsoft.VisualStudio.TestPlatform.Common.resources.dll
+    |       |           |       Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
+    |       |           |       
+    |       |           +---ru
+    |       |           |       Microsoft.TestPlatform.CommunicationUtilities.resources.dll
+    |       |           |       Microsoft.TestPlatform.CoreUtilities.resources.dll
+    |       |           |       Microsoft.TestPlatform.CrossPlatEngine.resources.dll
+    |       |           |       Microsoft.VisualStudio.TestPlatform.Common.resources.dll
+    |       |           |       Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
+    |       |           |       
+    |       |           +---tr
+    |       |           |       Microsoft.TestPlatform.CommunicationUtilities.resources.dll
+    |       |           |       Microsoft.TestPlatform.CoreUtilities.resources.dll
+    |       |           |       Microsoft.TestPlatform.CrossPlatEngine.resources.dll
+    |       |           |       Microsoft.VisualStudio.TestPlatform.Common.resources.dll
+    |       |           |       Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
+    |       |           |       
+    |       |           +---zh-Hans
+    |       |           |       Microsoft.TestPlatform.CommunicationUtilities.resources.dll
+    |       |           |       Microsoft.TestPlatform.CoreUtilities.resources.dll
+    |       |           |       Microsoft.TestPlatform.CrossPlatEngine.resources.dll
+    |       |           |       Microsoft.VisualStudio.TestPlatform.Common.resources.dll
+    |       |           |       Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
+    |       |           |       
+    |       |           \---zh-Hant
+    |       |                   Microsoft.TestPlatform.CommunicationUtilities.resources.dll
+    |       |                   Microsoft.TestPlatform.CoreUtilities.resources.dll
+    |       |                   Microsoft.TestPlatform.CrossPlatEngine.resources.dll
+    |       |                   Microsoft.VisualStudio.TestPlatform.Common.resources.dll
+    |       |                   Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
+    |       |                   
+    |       +---Core
+    |       |   \---Implementation
+    |       |           ParserServiceTests.cs
+    |       |           
+    |       \---obj
+    |           |   ImanSoftware.DepLens.Tests.csproj.nuget.dgspec.json
+    |           |   ImanSoftware.DepLens.Tests.csproj.nuget.g.props
+    |           |   ImanSoftware.DepLens.Tests.csproj.nuget.g.targets
+    |           |   project.assets.json
+    |           |   project.nuget.cache
+    |           |   
+    |           +---Debug
+    |           |   \---net10.0
+    |           |       |   .NETCoreApp,Version=v10.0.AssemblyAttributes.cs
+    |           |       |   ImanSoft.F8C71F81.Up2Date
+    |           |       |   ImanSoftware.DepLens.Tests.AssemblyInfo.cs
+    |           |       |   ImanSoftware.DepLens.Tests.AssemblyInfoInputs.cache
+    |           |       |   ImanSoftware.DepLens.Tests.assets.cache
+    |           |       |   ImanSoftware.DepLens.Tests.csproj.AssemblyReference.cache
+    |           |       |   ImanSoftware.DepLens.Tests.csproj.CoreCompileInputs.cache
+    |           |       |   ImanSoftware.DepLens.Tests.csproj.FileListAbsolute.txt
+    |           |       |   ImanSoftware.DepLens.Tests.dll
+    |           |       |   ImanSoftware.DepLens.Tests.GeneratedMSBuildEditorConfig.editorconfig
+    |           |       |   ImanSoftware.DepLens.Tests.genruntimeconfig.cache
+    |           |       |   ImanSoftware.DepLens.Tests.GlobalUsings.g.cs
+    |           |       |   ImanSoftware.DepLens.Tests.pdb
+    |           |       |   ImanSoftware.DepLens.Tests.sourcelink.json
+    |           |       |   ImanSoftware.DepLens.Tests.xml
+    |           |       |   
+    |           |       +---ref
+    |           |       |       ImanSoftware.DepLens.Tests.dll
+    |           |       |       
+    |           |       \---refint
+    |           |               ImanSoftware.DepLens.Tests.dll
+    |           |               
+    |           \---Release
+    |               \---net10.0
+    |                   |   .NETCoreApp,Version=v10.0.AssemblyAttributes.cs
+    |                   |   ImanSoft.F8C71F81.Up2Date
+    |                   |   ImanSoftware.DepLens.Tests.AssemblyInfo.cs
+    |                   |   ImanSoftware.DepLens.Tests.AssemblyInfoInputs.cache
+    |                   |   ImanSoftware.DepLens.Tests.assets.cache
+    |                   |   ImanSoftware.DepLens.Tests.csproj.AssemblyReference.cache
+    |                   |   ImanSoftware.DepLens.Tests.csproj.CoreCompileInputs.cache
+    |                   |   ImanSoftware.DepLens.Tests.csproj.FileListAbsolute.txt
+    |                   |   ImanSoftware.DepLens.Tests.dll
+    |                   |   ImanSoftware.DepLens.Tests.GeneratedMSBuildEditorConfig.editorconfig
+    |                   |   ImanSoftware.DepLens.Tests.genruntimeconfig.cache
+    |                   |   ImanSoftware.DepLens.Tests.GlobalUsings.g.cs
+    |                   |   ImanSoftware.DepLens.Tests.pdb
+    |                   |   ImanSoftware.DepLens.Tests.sourcelink.json
+    |                   |   ImanSoftware.DepLens.Tests.xml
+    |                   |   
+    |                   +---ref
+    |                   |       ImanSoftware.DepLens.Tests.dll
+    |                   |       
+    |                   \---refint
+    |                           ImanSoftware.DepLens.Tests.dll
     |                           
     \---UI
         \---ImanSoftware.DepLens.Cli
