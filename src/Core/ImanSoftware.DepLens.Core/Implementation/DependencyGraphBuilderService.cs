@@ -75,7 +75,10 @@ internal sealed class DependencyGraphBuilderService : IDependencyGraphBuilderSer
         HashSet<string> directProjectPaths)
     {
         var result = new List<Dependency>();
-        var visitedProjects = new HashSet<string> { rootProjectPath };
+        var visitedProjects = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            rootProjectPath
+        };
         var seenPackageNames = new HashSet<string>(directPackageNames, StringComparer.OrdinalIgnoreCase);
 
         var queue = new Queue<string>(directProjectPaths);

@@ -10,12 +10,12 @@ internal sealed class ProjectReferenceLinkerService : IProjectReferenceLinkerSer
     {
         var knownProjectPaths = parsedProjects
             .Select(p => NormalizePath(p.Source.FullPath))
-            .ToHashSet();
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
         var projectsByDirectory = parsedProjects
             .Select(p => NormalizePath(p.Source.FullPath))
             .GroupBy(p => NormalizeDirectory(Path.GetDirectoryName(p)!))
-            .ToDictionary(g => g.Key, g => g.ToList());
+            .ToDictionary(g => g.Key, g => g.ToList(), StringComparer.OrdinalIgnoreCase);
 
         var results = new List<ResolvedProjectReferences>();
 

@@ -39,11 +39,14 @@ internal sealed class ProjectOrienterService : IProjectOrienterService
         IReadOnlyList<ParsedFile> parsedSolutions,
         IReadOnlyList<DiscoveredFile> projectFiles)
     {
-        var knownProjectPaths = projectFiles.Select(f => NormalizePath(f.FullPath)).ToHashSet();
+        var knownProjectPaths = projectFiles
+            .Select(f => NormalizePath(f.FullPath))
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
         var projectsByDirectory = projectFiles
             .Select(f => NormalizePath(f.FullPath))
             .GroupBy(p => NormalizeDirectory(Path.GetDirectoryName(p)!))
-            .ToDictionary(g => g.Key, g => g.ToList());
+            .ToDictionary(g => g.Key, g => g.ToList(), StringComparer.OrdinalIgnoreCase);
 
         var map = new Dictionary<string, HashSet<string>>();
 
@@ -52,7 +55,7 @@ internal sealed class ProjectOrienterService : IProjectOrienterService
             var parsedSolution = (ParsedSolution)solutionFile.Content;
 
             var solutionDirectory = Path.GetDirectoryName(solutionFile.Source.FullPath)!;
-            var resolvedPaths = new HashSet<string>();
+            var resolvedPaths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
             foreach (var relativePath in parsedSolution.ProjectPaths)
             {
@@ -65,8 +68,6 @@ internal sealed class ProjectOrienterService : IProjectOrienterService
                     continue;
                 }
 
-                // همون Fallback: مدخل .sln/.slnx به یک csproj رنیم‌شده اشاره می‌کنه —
-                // اگه دایرکتوری مقصد دقیقاً یک پروژه داشت، اون رو بپذیر.
                 var targetDirectory = NormalizeDirectory(Path.GetDirectoryName(normalized)!);
                 if (projectsByDirectory.TryGetValue(targetDirectory, out var candidates) && candidates.Count == 1)
                     resolvedPaths.Add(candidates[0]);
