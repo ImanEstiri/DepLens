@@ -5,6 +5,5 @@ public enum DependencyType
 {
     None,
     Project,
-    Package,
-    DLL
+    Package
 }
