@@ -8,7 +8,6 @@ DepLens is a dependency-analysis engine for .NET codebases, with a growing set o
 [![Downloads](https://img.shields.io/nuget/dt/ImanSoftware.DepLens.Cli.svg)](https://www.nuget.org/packages/ImanSoftware.DepLens.Cli)
 [![License: MIT](https://img.shields.io/github/license/ImanEstiri/DepLens.svg)](LICENSE.txt)
 
-<!-- TODO: add a screenshot or GIF of the report here, e.g. docs/images/report.png -->
 ![DepLens interactive dependency report](docs/images/graph-sample-1.gif)
 
 Point DepLens at a folder — a single repo or a whole monorepo with several solutions — and it produces one self-contained HTML file you can open in any browser. No server, no restore step, no configuration.
