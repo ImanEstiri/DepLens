@@ -169,7 +169,7 @@
 <div id="tooltip"></div>
 
 <script>
-const reports = [{"projectFullPath":"G:\\Projects\\Git\\Iman\\DepLens\\src\\Core\\ImanSoftware.DepLens.Abstractions\\ImanSoftware.DepLens.Abstractions.csproj","solutionPaths":["G:\\Projects\\Git\\Iman\\DepLens\\DepLens.slnx"],"dependencies":[{"name":"ImanSoftware.OutCome","version":"1.0.3","type":"Package","scope":"Direct","versionSource":"CentralPackageManagement","isResolved":true,"targetFullPath":null},{"name":"ImanSoftware.FileStorage","version":"2.1.1","type":"Package","scope":"Direct","versionSource":"CentralPackageManagement","isResolved":true,"targetFullPath":null},{"name":"ImanSoftware.Extensions","version":"1.0.4","type":"Package","scope":"Direct","versionSource":"CentralPackageManagement","isResolved":true,"targetFullPath":null}]},{"projectFullPath":"G:\\Projects\\Git\\Iman\\DepLens\\src\\Core\\ImanSoftware.DepLens.Core\\ImanSoftware.DepLens.Core.csproj","solutionPaths":["G:\\Projects\\Git\\Iman\\DepLens\\DepLens.slnx"],"dependencies":[{"name":"ImanSoftware.DepLens.Abstractions","version":null,"type":"Project","scope":"Direct","versionSource":null,"isResolved":true,"targetFullPath":"G:\\Projects\\Git\\Iman\\DepLens\\src\\Core\\ImanSoftware.DepLens.Abstractions\\ImanSoftware.DepLens.Abstractions.csproj"},{"name":"ImanSoftware.OutCome","version":"1.0.3","type":"Package","scope":"Transitive","versionSource":"CentralPackageManagement","isResolved":true,"targetFullPath":null},{"name":"ImanSoftware.FileStorage","version":"2.1.1","type":"Package","scope":"Transitive","versionSource":"CentralPackageManagement","isResolved":true,"targetFullPath":null},{"name":"ImanSoftware.Extensions","version":"1.0.4","type":"Package","scope":"Transitive","versionSource":"CentralPackageManagement","isResolved":true,"targetFullPath":null}]},{"projectFullPath":"G:\\Projects\\Git\\Iman\\DepLens\\src\\Playground\\ImanSoftware.DepLens.Playground\\ImanSoftware.DepLens.Playground.csproj","solutionPaths":["G:\\Projects\\Git\\Iman\\DepLens\\DepLens.slnx"],"dependencies":[{"name":"ImanSoftware.DepLens.Core","version":null,"type":"Project","scope":"Direct","versionSource":null,"isResolved":true,"targetFullPath":"G:\\Projects\\Git\\Iman\\DepLens\\src\\Core\\ImanSoftware.DepLens.Core\\ImanSoftware.DepLens.Core.csproj"},{"name":"ImanSoftware.DepLens.Abstractions","version":null,"type":"Project","scope":"Transitive","versionSource":null,"isResolved":true,"targetFullPath":"G:\\Projects\\Git\\Iman\\DepLens\\src\\Core\\ImanSoftware.DepLens.Abstractions\\ImanSoftware.DepLens.Abstractions.csproj"},{"name":"ImanSoftware.OutCome","version":"1.0.3","type":"Package","scope":"Transitive","versionSource":"CentralPackageManagement","isResolved":true,"targetFullPath":null},{"name":"ImanSoftware.FileStorage","version":"2.1.1","type":"Package","scope":"Transitive","versionSource":"CentralPackageManagement","isResolved":true,"targetFullPath":null},{"name":"ImanSoftware.Extensions","version":"1.0.4","type":"Package","scope":"Transitive","versionSource":"CentralPackageManagement","isResolved":true,"targetFullPath":null}]},{"projectFullPath":"G:\\Projects\\Git\\Iman\\DepLens\\src\\UI\\ImanSoftware.DepLens.Cli\\ImanSoftware.DepLens.Cli.csproj","solutionPaths":["G:\\Projects\\Git\\Iman\\DepLens\\DepLens.slnx"],"dependencies":[{"name":"Spectre.Console","version":"0.57.2","type":"Package","scope":"Direct","versionSource":"CentralPackageManagement","isResolved":true,"targetFullPath":null},{"name":"Spectre.Console.Cli","version":"0.55.0","type":"Package","scope":"Direct","versionSource":"CentralPackageManagement","isResolved":true,"targetFullPath":null},{"name":"ImanSoftware.DepLens.Core","version":null,"type":"Project","scope":"Direct","versionSource":null,"isResolved":true,"targetFullPath":"G:\\Projects\\Git\\Iman\\DepLens\\src\\Core\\ImanSoftware.DepLens.Core\\ImanSoftware.DepLens.Core.csproj"},{"name":"ImanSoftware.DepLens.Abstractions","version":null,"type":"Project","scope":"Transitive","versionSource":null,"isResolved":true,"targetFullPath":"G:\\Projects\\Git\\Iman\\DepLens\\src\\Core\\ImanSoftware.DepLens.Abstractions\\ImanSoftware.DepLens.Abstractions.csproj"},{"name":"ImanSoftware.OutCome","version":"1.0.3","type":"Package","scope":"Transitive","versionSource":"CentralPackageManagement","isResolved":true,"targetFullPath":null},{"name":"ImanSoftware.FileStorage","version":"2.1.1","type":"Package","scope":"Transitive","versionSource":"CentralPackageManagement","isResolved":true,"targetFullPath":null},{"name":"ImanSoftware.Extensions","version":"1.0.4","type":"Package","scope":"Transitive","versionSource":"CentralPackageManagement","isResolved":true,"targetFullPath":null}]}];
+const reports = [{"projectFullPath":"g:\\projects\\git\\iman\\deplens\\src\\Core\\ImanSoftware.DepLens.Abstractions\\ImanSoftware.DepLens.Abstractions.csproj","solutionPaths":["g:\\projects\\git\\iman\\deplens\\DepLens.slnx"],"dependencies":[{"name":"ImanSoftware.OutCome","version":"1.0.3","type":"Package","scope":"Direct","versionSource":"CentralPackageManagement","isResolved":true,"targetFullPath":null},{"name":"ImanSoftware.FileStorage","version":"2.1.1","type":"Package","scope":"Direct","versionSource":"CentralPackageManagement","isResolved":true,"targetFullPath":null},{"name":"ImanSoftware.Extensions","version":"1.0.4","type":"Package","scope":"Direct","versionSource":"CentralPackageManagement","isResolved":true,"targetFullPath":null}]},{"projectFullPath":"g:\\projects\\git\\iman\\deplens\\src\\Core\\ImanSoftware.DepLens.Core\\ImanSoftware.DepLens.Core.csproj","solutionPaths":["g:\\projects\\git\\iman\\deplens\\DepLens.slnx"],"dependencies":[{"name":"ImanSoftware.DepLens.Abstractions","version":null,"type":"Project","scope":"Direct","versionSource":null,"isResolved":true,"targetFullPath":"g:\\projects\\git\\iman\\deplens\\src\\Core\\ImanSoftware.DepLens.Abstractions\\ImanSoftware.DepLens.Abstractions.csproj"},{"name":"ImanSoftware.OutCome","version":"1.0.3","type":"Package","scope":"Transitive","versionSource":"CentralPackageManagement","isResolved":true,"targetFullPath":null},{"name":"ImanSoftware.FileStorage","version":"2.1.1","type":"Package","scope":"Transitive","versionSource":"CentralPackageManagement","isResolved":true,"targetFullPath":null},{"name":"ImanSoftware.Extensions","version":"1.0.4","type":"Package","scope":"Transitive","versionSource":"CentralPackageManagement","isResolved":true,"targetFullPath":null}]},{"projectFullPath":"g:\\projects\\git\\iman\\deplens\\src\\Playground\\ImanSoftware.DepLens.Playground\\ImanSoftware.DepLens.Playground.csproj","solutionPaths":["g:\\projects\\git\\iman\\deplens\\DepLens.slnx"],"dependencies":[{"name":"ImanSoftware.DepLens.Core","version":null,"type":"Project","scope":"Direct","versionSource":null,"isResolved":true,"targetFullPath":"g:\\projects\\git\\iman\\deplens\\src\\Core\\ImanSoftware.DepLens.Core\\ImanSoftware.DepLens.Core.csproj"},{"name":"ImanSoftware.DepLens.Abstractions","version":null,"type":"Project","scope":"Transitive","versionSource":null,"isResolved":true,"targetFullPath":"g:\\projects\\git\\iman\\deplens\\src\\Core\\ImanSoftware.DepLens.Abstractions\\ImanSoftware.DepLens.Abstractions.csproj"},{"name":"ImanSoftware.OutCome","version":"1.0.3","type":"Package","scope":"Transitive","versionSource":"CentralPackageManagement","isResolved":true,"targetFullPath":null},{"name":"ImanSoftware.FileStorage","version":"2.1.1","type":"Package","scope":"Transitive","versionSource":"CentralPackageManagement","isResolved":true,"targetFullPath":null},{"name":"ImanSoftware.Extensions","version":"1.0.4","type":"Package","scope":"Transitive","versionSource":"CentralPackageManagement","isResolved":true,"targetFullPath":null}]},{"projectFullPath":"g:\\projects\\git\\iman\\deplens\\src\\tests\\ImanSoftware.DepLens.Tests\\ImanSoftware.DepLens.Tests.csproj","solutionPaths":["g:\\projects\\git\\iman\\deplens\\DepLens.slnx"],"dependencies":[{"name":"coverlet.collector","version":"6.0.4","type":"Package","scope":"Direct","versionSource":"CentralPackageManagement","isResolved":true,"targetFullPath":null},{"name":"FluentAssertions","version":"8.11.0","type":"Package","scope":"Direct","versionSource":"CentralPackageManagement","isResolved":true,"targetFullPath":null},{"name":"Microsoft.NET.Test.Sdk","version":"17.14.1","type":"Package","scope":"Direct","versionSource":"CentralPackageManagement","isResolved":true,"targetFullPath":null},{"name":"xunit","version":"2.9.3","type":"Package","scope":"Direct","versionSource":"CentralPackageManagement","isResolved":true,"targetFullPath":null},{"name":"xunit.runner.visualstudio","version":"3.1.4","type":"Package","scope":"Direct","versionSource":"CentralPackageManagement","isResolved":true,"targetFullPath":null},{"name":"ImanSoftware.DepLens.Core","version":null,"type":"Project","scope":"Direct","versionSource":null,"isResolved":true,"targetFullPath":"g:\\projects\\git\\iman\\deplens\\src\\Core\\ImanSoftware.DepLens.Core\\ImanSoftware.DepLens.Core.csproj"},{"name":"ImanSoftware.DepLens.Abstractions","version":null,"type":"Project","scope":"Transitive","versionSource":null,"isResolved":true,"targetFullPath":"g:\\projects\\git\\iman\\deplens\\src\\Core\\ImanSoftware.DepLens.Abstractions\\ImanSoftware.DepLens.Abstractions.csproj"},{"name":"ImanSoftware.OutCome","version":"1.0.3","type":"Package","scope":"Transitive","versionSource":"CentralPackageManagement","isResolved":true,"targetFullPath":null},{"name":"ImanSoftware.FileStorage","version":"2.1.1","type":"Package","scope":"Transitive","versionSource":"CentralPackageManagement","isResolved":true,"targetFullPath":null},{"name":"ImanSoftware.Extensions","version":"1.0.4","type":"Package","scope":"Transitive","versionSource":"CentralPackageManagement","isResolved":true,"targetFullPath":null}]},{"projectFullPath":"g:\\projects\\git\\iman\\deplens\\src\\UI\\ImanSoftware.DepLens.Cli\\ImanSoftware.DepLens.Cli.csproj","solutionPaths":["g:\\projects\\git\\iman\\deplens\\DepLens.slnx"],"dependencies":[{"name":"Spectre.Console","version":"0.57.2","type":"Package","scope":"Direct","versionSource":"CentralPackageManagement","isResolved":true,"targetFullPath":null},{"name":"Spectre.Console.Cli","version":"0.55.0","type":"Package","scope":"Direct","versionSource":"CentralPackageManagement","isResolved":true,"targetFullPath":null},{"name":"ImanSoftware.DepLens.Core","version":null,"type":"Project","scope":"Direct","versionSource":null,"isResolved":true,"targetFullPath":"g:\\projects\\git\\iman\\deplens\\src\\Core\\ImanSoftware.DepLens.Core\\ImanSoftware.DepLens.Core.csproj"},{"name":"ImanSoftware.DepLens.Abstractions","version":null,"type":"Project","scope":"Transitive","versionSource":null,"isResolved":true,"targetFullPath":"g:\\projects\\git\\iman\\deplens\\src\\Core\\ImanSoftware.DepLens.Abstractions\\ImanSoftware.DepLens.Abstractions.csproj"},{"name":"ImanSoftware.OutCome","version":"1.0.3","type":"Package","scope":"Transitive","versionSource":"CentralPackageManagement","isResolved":true,"targetFullPath":null},{"name":"ImanSoftware.FileStorage","version":"2.1.1","type":"Package","scope":"Transitive","versionSource":"CentralPackageManagement","isResolved":true,"targetFullPath":null},{"name":"ImanSoftware.Extensions","version":"1.0.4","type":"Package","scope":"Transitive","versionSource":"CentralPackageManagement","isResolved":true,"targetFullPath":null}]}];
 
 function baseName(p) { return (p || "").split(/[\\/]/).pop().replace(/\.(csproj|sln|slnx)$/i, ""); }
 
@@ -732,6 +732,12 @@ render("pkg");
 ﻿
 namespace ImanSoftware.DepLens.Abstractions.Models;
 
+/// <summary>
+/// Represents a file discovered during directory scanning.
+/// </summary>
+/// <param name="FullPath">The absolute path to the file.</param>
+/// <param name="FileType">The classified type of the file.</param>
+/// <param name="RawContent">The raw text content of the file.</param>
 public sealed record DiscoveredFile(
     string FullPath,
     FileType FileType,
@@ -746,10 +752,18 @@ public sealed record DiscoveredFile(
 ﻿
 namespace ImanSoftware.DepLens.Abstractions.Models;
 
+/// <summary>
+/// Specifies whether a dependency is direct or transitive.
+/// </summary>
 public enum DependencyScope
 {
+    /// <summary>Scope is not specified.</summary>
     None,
+
+    /// <summary>The dependency is explicitly referenced in the project file.</summary>
     Direct,
+
+    /// <summary>The dependency is pulled in indirectly through another dependency.</summary>
     Transitive
 }
 
@@ -762,12 +776,19 @@ public enum DependencyScope
 ﻿
 namespace ImanSoftware.DepLens.Abstractions.Models;
 
+/// <summary>
+/// Specifies the type of a dependency between projects or packages.
+/// </summary>
 public enum DependencyType
 {
+    /// <summary>No dependency type specified.</summary>
     None,
+
+    /// <summary>A dependency on another project within the same solution.</summary>
     Project,
-    Package,
-    DLL
+
+    /// <summary>A dependency on a NuGet package.</summary>
+    Package
 }
 
 ``` 
@@ -781,24 +802,33 @@ using System.ComponentModel;
 
 namespace ImanSoftware.DepLens.Abstractions.Models;
 
+/// <summary>
+/// Specifies the type of a discovered file in a .NET solution.
+/// </summary>
 public enum FileType
 {
+    /// <summary>Unknown or unsupported file type.</summary>
     None,
 
+    /// <summary>A classic Visual Studio solution file (.sln).</summary>
     [Description("*.sln")]
-    SolutionClassic,      // .sln
+    SolutionClassic,
 
+    /// <summary>An XML-based solution file (.slnx).</summary>
     [Description("*.slnx")]
-    SolutionXml,           // .slnx
+    SolutionXml,
 
+    /// <summary>A C# project file (.csproj).</summary>
     [Description("*.csproj")]
-    Project,                // .csproj
+    Project,
 
+    /// <summary>Central Package Management file (Directory.Packages.props).</summary>
     [Description("Directory.Packages.props")]
-    DirectoryPackagesProps, // Directory.Packages.props
+    DirectoryPackagesProps,
 
+    /// <summary>Directory.Build.props file for shared build properties.</summary>
     [Description("Directory.Build.props")]
-    DirectoryBuildProps     // Directory.Build.props 
+    DirectoryBuildProps
 }
 
 ``` 
@@ -810,7 +840,20 @@ public enum FileType
 ﻿
 namespace ImanSoftware.DepLens.Abstractions.Models;
 
-public enum PackageVersionSourceType { Explicit, CentralPackageManagement, VersionOverride }
+/// <summary>
+/// Specifies where the version of a NuGet package reference comes from.
+/// </summary>
+public enum PackageVersionSourceType
+{
+    /// <summary>The version is explicitly specified on the PackageReference.</summary>
+    Explicit,
+
+    /// <summary>The version comes from Central Package Management.</summary>
+    CentralPackageManagement,
+
+    /// <summary>The version is overridden using VersionOverride.</summary>
+    VersionOverride
+}
 
 ``` 
 
@@ -820,6 +863,16 @@ public enum PackageVersionSourceType { Explicit, CentralPackageManagement, Versi
 ```csharp 
 ﻿namespace ImanSoftware.DepLens.Abstractions.Models;
 
+/// <summary>
+/// Represents a single dependency of a project, which can be a project, package, or assembly.
+/// </summary>
+/// <param name="Name">The name of the dependency.</param>
+/// <param name="Version">The resolved version of the dependency, if applicable.</param>
+/// <param name="Type">The type of dependency (project, package, etc.).</param>
+/// <param name="Scope">Whether the dependency is direct or transitive.</param>
+/// <param name="VersionSource">The source of the version information.</param>
+/// <param name="IsResolved">Whether the dependency was successfully resolved.</param>
+/// <param name="TargetFullPath">The full path to the target project, if resolved internally.</param>
 public sealed record Dependency(
     string Name,
     string? Version,
@@ -839,6 +892,12 @@ public sealed record Dependency(
 
 namespace ImanSoftware.DepLens.Abstractions.Models;
 
+/// <summary>
+/// Contains the full dependency information for a single project.
+/// </summary>
+/// <param name="ProjectFullPath">The full path to the project file.</param>
+/// <param name="SolutionPaths">The solutions that contain this project.</param>
+/// <param name="Dependencies">All direct and transitive dependencies of the project.</param>
 public sealed record ProjectDependencyReport(
     string ProjectFullPath,
     IReadOnlyList<string> SolutionPaths,
@@ -853,6 +912,9 @@ public sealed record ProjectDependencyReport(
 ﻿
 namespace ImanSoftware.DepLens.Abstractions.Models;
 
+/// <summary>
+/// Marker interface for content parsed from a file.
+/// </summary>
 public interface IParsedContent { }
 
 ``` 
@@ -864,9 +926,15 @@ public interface IParsedContent { }
 ﻿// Models/Parser/PackageDependency.cs
 namespace ImanSoftware.DepLens.Abstractions.Models;
 
+/// <summary>
+/// Represents a NuGet package dependency with its resolved version and source.
+/// </summary>
+/// <param name="Name">The package identifier.</param>
+/// <param name="ResolvedVersion">The resolved version, or null if unknown.</param>
+/// <param name="Source">How the version was determined.</param>
 public sealed record PackageDependency(
     string Name,
-    string? ResolvedVersion,   
+    string? ResolvedVersion,
     PackageVersionSourceType Source);
 
 ``` 
@@ -878,6 +946,11 @@ public sealed record PackageDependency(
 ﻿
 namespace ImanSoftware.DepLens.Abstractions.Models;
 
+/// <summary>
+/// Represents a file that has been parsed into a structured content model.
+/// </summary>
+/// <param name="Source">The originally discovered file.</param>
+/// <param name="Content">The parsed content (solution, project, or packages props).</param>
 public sealed record ParsedFile(
     DiscoveredFile Source,
     IParsedContent Content);
@@ -891,6 +964,11 @@ public sealed record ParsedFile(
 ﻿
 namespace ImanSoftware.DepLens.Abstractions.Models;
 
+/// <summary>
+/// Represents a parsed Directory.Packages.props file with central package version information.
+/// </summary>
+/// <param name="ManagePackageVersionsCentrally">Whether CPM is enabled.</param>
+/// <param name="CentralPackageVersions">Mapping of package names to their central versions.</param>
 public sealed record ParsedPackagesProps(
     bool ManagePackageVersionsCentrally,
     IReadOnlyDictionary<string, string> CentralPackageVersions) : IParsedContent;
@@ -903,6 +981,14 @@ public sealed record ParsedPackagesProps(
 ```csharp 
 ﻿namespace ImanSoftware.DepLens.Abstractions.Models;
 
+/// <summary>
+/// Represents a parsed .csproj file containing project references, package references, and metadata.
+/// </summary>
+/// <param name="TargetFrameworks">The target frameworks specified in the project.</param>
+/// <param name="ProjectReferences">References to other projects.</param>
+/// <param name="PackageReferences">NuGet package references.</param>
+/// <param name="ManagePackageVersionsCentrallyOverride">Local override for CPM.</param>
+/// <param name="EffectiveManagePackageVersionsCentrally">Whether CPM is effectively enabled.</param>
 public sealed record ParsedProject(
     IReadOnlyList<string> TargetFrameworks,
     IReadOnlyList<RawProjectReference> ProjectReferences,
@@ -919,6 +1005,10 @@ public sealed record ParsedProject(
 ﻿
 namespace ImanSoftware.DepLens.Abstractions.Models;
 
+/// <summary>
+/// Represents a parsed solution file (.sln or .slnx) containing project paths.
+/// </summary>
+/// <param name="ProjectPaths">The relative paths to projects included in the solution.</param>
 public sealed record ParsedSolution(
     IReadOnlyList<string> ProjectPaths) : IParsedContent;
 
@@ -931,9 +1021,15 @@ public sealed record ParsedSolution(
 ﻿
 namespace ImanSoftware.DepLens.Abstractions.Models;
 
+/// <summary>
+/// Contains the context for a project, including its solutions and central package versions.
+/// </summary>
+/// <param name="ProjectFullPath">The full path to the project file.</param>
+/// <param name="SolutionPaths">The solutions that contain this project.</param>
+/// <param name="CentralPackageVersions">The central package versions applicable to this project.</param>
 public sealed record ProjectContext(
     string ProjectFullPath,
-    IReadOnlyList<string> SolutionPaths,      
+    IReadOnlyList<string> SolutionPaths,
     ParsedPackagesProps? CentralPackageVersions);
 
 ``` 
@@ -944,10 +1040,21 @@ public sealed record ProjectContext(
 ```csharp 
 ﻿namespace ImanSoftware.DepLens.Abstractions.Models;
 
+/// <summary>
+/// Base type for a project reference link, which can be internal or external.
+/// </summary>
 public abstract record ProjectReferenceLink;
 
+/// <summary>
+/// A project reference that resolves to a project within the scanned directory.
+/// </summary>
+/// <param name="FullPath">The full path to the referenced project.</param>
 public sealed record InternalProjectReference(string FullPath) : ProjectReferenceLink;
 
+/// <summary>
+/// A project reference that points outside the scanned directory.
+/// </summary>
+/// <param name="RawPath">The raw relative or absolute path from the project file.</param>
 public sealed record ExternalProjectReference(string RawPath) : ProjectReferenceLink;
 
 ``` 
@@ -959,6 +1066,10 @@ public sealed record ExternalProjectReference(string RawPath) : ProjectReference
 ﻿
 namespace ImanSoftware.DepLens.Abstractions.Models;
 
+/// <summary>
+/// Represents a raw project reference path as it appears in a project file.
+/// </summary>
+/// <param name="RelativeOrAbsolutePath">The raw path string.</param>
 public sealed record RawProjectReference(string RelativeOrAbsolutePath);
 
 ``` 
@@ -969,6 +1080,11 @@ public sealed record RawProjectReference(string RelativeOrAbsolutePath);
 ```csharp 
 ﻿namespace ImanSoftware.DepLens.Abstractions.Models;
 
+/// <summary>
+/// Contains the resolved references for a single project.
+/// </summary>
+/// <param name="ProjectFullPath">The full path to the project file.</param>
+/// <param name="References">The resolved project references.</param>
 public sealed record ResolvedProjectReferences(
     string ProjectFullPath,
     IReadOnlyList<ProjectReferenceLink> References);
@@ -984,8 +1100,18 @@ using ImanSoftware.Outcomes;
 
 namespace ImanSoftware.DepLens.Abstractions.Services;
 
+/// <summary>
+/// Defines a service for building dependency reports from parsed projects.
+/// </summary>
 public interface IDependencyGraphBuilderService : IService
 {
+    /// <summary>
+    /// Builds dependency reports for all projects.
+    /// </summary>
+    /// <param name="parsedProjects">The parsed project files.</param>
+    /// <param name="resolvedReferences">The resolved project references.</param>
+    /// <param name="projectContexts">The project contexts.</param>
+    /// <returns>An outcome containing a list of project dependency reports.</returns>
     Task<Outcome<List<ProjectDependencyReport>>> Build(
         IReadOnlyList<ParsedFile> parsedProjects,
         IReadOnlyList<ResolvedProjectReferences> resolvedReferences,
@@ -1004,8 +1130,16 @@ using ImanSoftware.Outcomes;
 
 namespace ImanSoftware.DepLens.Abstractions.Services;
 
+/// <summary>
+/// Defines the main entry point for analyzing .NET solutions.
+/// </summary>
 public interface IDepLensService : IService
 {
+    /// <summary>
+    /// Analyzes the solution or directory at the specified path and returns dependency reports.
+    /// </summary>
+    /// <param name="path">The path to a .sln/.slnx file or a directory containing solutions.</param>
+    /// <returns>An outcome containing a list of project dependency reports.</returns>
     Task<Outcome<List<ProjectDependencyReport>>> Analyze(string path);
 }
 
@@ -1021,8 +1155,16 @@ using ImanSoftware.Outcomes;
 
 namespace ImanSoftware.DepLens.Abstractions.Services;
 
+/// <summary>
+/// Defines a service for discovering relevant files within a directory.
+/// </summary>
 public interface IDirectoryScanner : IService
 {
+    /// <summary>
+    /// Scans the specified directory and returns all discovered solution, project, and props files.
+    /// </summary>
+    /// <param name="path">The directory path to scan.</param>
+    /// <returns>An outcome containing a list of discovered files.</returns>
     Task<Outcome<List<DiscoveredFile>>> InvestigateDirectoryAsync(string path);
 }
 
@@ -1037,8 +1179,18 @@ using ImanSoftware.Outcomes;
 
 namespace ImanSoftware.DepLens.Abstractions.Services;
 
+/// <summary>
+/// Defines a service for generating HTML dependency graph reports.
+/// </summary>
 public interface IHtmlGraphReportService : IService
 {
+    /// <summary>
+    /// Generates an HTML report for the given dependency reports.
+    /// </summary>
+    /// <param name="reports">The dependency reports to visualize.</param>
+    /// <param name="outputDirectory">The directory where the HTML file will be written.</param>
+    /// <param name="fileName">The output file name.</param>
+    /// <returns>An outcome containing the full path to the generated HTML file.</returns>
     Task<Outcome<string>> GenerateAsync(
         IReadOnlyList<ProjectDependencyReport> reports,
         string outputDirectory,
@@ -1057,8 +1209,17 @@ using ImanSoftware.Outcomes;
 
 namespace ImanSoftware.DepLens.Abstractions.Services;
 
+/// <summary>
+/// Defines a service for parsing discovered files into structured content.
+/// </summary>
 public interface IParserService : IService
 {
+    /// <summary>
+    /// Parses a discovered file into its structured content representation.
+    /// </summary>
+    /// <param name="file">The file to parse.</param>
+    /// <param name="context">Optional project context for CPM resolution.</param>
+    /// <returns>An outcome containing the parsed file.</returns>
     Task<Outcome<ParsedFile>> ParseAsync(DiscoveredFile file, ProjectContext? context = null);
 }
 
@@ -1073,8 +1234,18 @@ using ImanSoftware.Outcomes;
 
 namespace ImanSoftware.DepLens.Abstractions.Services;
 
+/// <summary>
+/// Defines a service for determining project contexts (solutions and CPM) for each project.
+/// </summary>
 public interface IProjectOrienterService : IService
 {
+    /// <summary>
+    /// Orients projects by determining their owning solutions and applicable central package versions.
+    /// </summary>
+    /// <param name="projectFiles">The discovered project files.</param>
+    /// <param name="parsedSolutions">The parsed solution files.</param>
+    /// <param name="parsedPackagesProps">The parsed Directory.Packages.props files.</param>
+    /// <returns>An outcome containing a list of project contexts.</returns>
     Task<Outcome<List<ProjectContext>>> Orient(
         IReadOnlyList<DiscoveredFile> projectFiles,
         IReadOnlyList<ParsedFile> parsedSolutions,
@@ -1092,8 +1263,16 @@ using ImanSoftware.Outcomes;
 
 namespace ImanSoftware.DepLens.Abstractions.Services;
 
+/// <summary>
+/// Defines a service for resolving project references as internal or external.
+/// </summary>
 public interface IProjectReferenceLinkerService : IService
 {
+    /// <summary>
+    /// Links project references by resolving them against known projects.
+    /// </summary>
+    /// <param name="parsedProjects">The parsed project files.</param>
+    /// <returns>An outcome containing resolved project references.</returns>
     Task<Outcome<List<ResolvedProjectReferences>>> Link(IReadOnlyList<ParsedFile> parsedProjects);
 }
 
@@ -1106,6 +1285,9 @@ public interface IProjectReferenceLinkerService : IService
 ﻿
 namespace ImanSoftware.DepLens.Abstractions.Services;
 
+/// <summary>
+/// Marker interface for all services in the DepLens application.
+/// </summary>
 public interface IService
 {
 }
@@ -1232,7 +1414,10 @@ internal sealed class DependencyGraphBuilderService : IDependencyGraphBuilderSer
         HashSet<string> directProjectPaths)
     {
         var result = new List<Dependency>();
-        var visitedProjects = new HashSet<string> { rootProjectPath };
+        var visitedProjects = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            rootProjectPath
+        };
         var seenPackageNames = new HashSet<string>(directPackageNames, StringComparer.OrdinalIgnoreCase);
 
         var queue = new Queue<string>(directProjectPaths);
@@ -2428,11 +2613,14 @@ internal sealed class ProjectOrienterService : IProjectOrienterService
         IReadOnlyList<ParsedFile> parsedSolutions,
         IReadOnlyList<DiscoveredFile> projectFiles)
     {
-        var knownProjectPaths = projectFiles.Select(f => NormalizePath(f.FullPath)).ToHashSet();
+        var knownProjectPaths = projectFiles
+            .Select(f => NormalizePath(f.FullPath))
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
         var projectsByDirectory = projectFiles
             .Select(f => NormalizePath(f.FullPath))
             .GroupBy(p => NormalizeDirectory(Path.GetDirectoryName(p)!))
-            .ToDictionary(g => g.Key, g => g.ToList());
+            .ToDictionary(g => g.Key, g => g.ToList(), StringComparer.OrdinalIgnoreCase);
 
         var map = new Dictionary<string, HashSet<string>>();
 
@@ -2441,7 +2629,7 @@ internal sealed class ProjectOrienterService : IProjectOrienterService
             var parsedSolution = (ParsedSolution)solutionFile.Content;
 
             var solutionDirectory = Path.GetDirectoryName(solutionFile.Source.FullPath)!;
-            var resolvedPaths = new HashSet<string>();
+            var resolvedPaths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
             foreach (var relativePath in parsedSolution.ProjectPaths)
             {
@@ -2454,8 +2642,6 @@ internal sealed class ProjectOrienterService : IProjectOrienterService
                     continue;
                 }
 
-                // همون Fallback: مدخل .sln/.slnx به یک csproj رنیم‌شده اشاره می‌کنه —
-                // اگه دایرکتوری مقصد دقیقاً یک پروژه داشت، اون رو بپذیر.
                 var targetDirectory = NormalizeDirectory(Path.GetDirectoryName(normalized)!);
                 if (projectsByDirectory.TryGetValue(targetDirectory, out var candidates) && candidates.Count == 1)
                     resolvedPaths.Add(candidates[0]);
@@ -2505,12 +2691,12 @@ internal sealed class ProjectReferenceLinkerService : IProjectReferenceLinkerSer
     {
         var knownProjectPaths = parsedProjects
             .Select(p => NormalizePath(p.Source.FullPath))
-            .ToHashSet();
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
         var projectsByDirectory = parsedProjects
             .Select(p => NormalizePath(p.Source.FullPath))
             .GroupBy(p => NormalizeDirectory(Path.GetDirectoryName(p)!))
-            .ToDictionary(g => g.Key, g => g.ToList());
+            .ToDictionary(g => g.Key, g => g.ToList(), StringComparer.OrdinalIgnoreCase);
 
         var results = new List<ResolvedProjectReferences>();
 
@@ -2642,6 +2828,7 @@ internal class Program
 
   <ItemGroup>
     <PackageReference Include="coverlet.collector" />
+    <PackageReference Include="FluentAssertions" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
     <PackageReference Include="xunit" />
     <PackageReference Include="xunit.runner.visualstudio" />
@@ -2943,6 +3130,56 @@ public class ParserServiceTests
 ``` 
 
 
+### src > tests > ImanSoftware.DepLens.Tests > Core > Implementation > ProjectReferenceLinkerServiceTests 
+
+```csharp 
+﻿using FluentAssertions;
+using ImanSoftware.DepLens.Abstractions.Models;
+using ImanSoftware.DepLens.Core.Implementation;
+
+namespace ImanSoftware.DepLens.Tests.Core.Implementation;
+
+public class ProjectReferenceLinkerServiceTests
+{
+    [Fact]
+    public async Task Link_ShouldResolveInternalReference_WhenCaseDiffers()
+    {
+        // Arrange
+        var projectPath = @"C:\Repo\MyLib\MyLib.csproj";
+        var referencePath = @"..\MyLib\mylib.csproj"; // حروف کوچک
+
+        var parsedProject = new ParsedProject(
+            TargetFrameworks: [],
+            ProjectReferences: [new RawProjectReference(referencePath)],
+            PackageReferences: [],
+            ManagePackageVersionsCentrallyOverride: null,
+            EffectiveManagePackageVersionsCentrally: false);
+
+        var parsedFile = new ParsedFile(
+            Source: new DiscoveredFile(projectPath, FileType.Project, ""),
+            Content: parsedProject);
+
+        var targetProjectPath = @"C:\Repo\MyLib\MyLib.csproj";
+        var targetParsedFile = new ParsedFile(
+            Source: new DiscoveredFile(targetProjectPath, FileType.Project, ""),
+            Content: parsedProject);
+
+        var service = new ProjectReferenceLinkerService();
+
+        // Act
+        var outcome = await service.Link([parsedFile, targetParsedFile]);
+
+        // Assert
+        outcome.IsSuccess.Should().BeTrue();
+        var resolved = outcome.Data!.First(r => r.ProjectFullPath == projectPath);
+        resolved.References.Should().ContainSingle()
+            .Which.Should().BeOfType<InternalProjectReference>();
+    }
+}
+
+``` 
+
+
 ### src > UI > ImanSoftware.DepLens.Cli > ImanSoftware.DepLens.Cli 
 
 ```xml 
@@ -2970,7 +3207,7 @@ public class ParserServiceTests
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>deplens</ToolCommandName>
     <PackageId>ImanSoftware.DepLens.Cli</PackageId>
-    <Version>1.0.1</Version>
+    <Version>1.1.0</Version>
     <Description>DepLens — Interactive dependency graph analyzer for .NET solutions.</Description>
     <PackageTags>dotnet;dependency-graph;nuget;msbuild;cli;deplens</PackageTags>
     <PackageIcon>icon.png</PackageIcon>
