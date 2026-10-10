@@ -6,11 +6,12 @@
         <Nullable>enable</Nullable>
         <AnalysisLevel>latest</AnalysisLevel>
         <AnalysisMode>All</AnalysisMode>
-		<TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-		<CodeAnalysisTreatWarningsAsErrors>false</CodeAnalysisTreatWarningsAsErrors>
-		<EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
-		<InvariantGlobalization>false</InvariantGlobalization>
-		<NuGetAudit>false</NuGetAudit>
+		    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+		    <CodeAnalysisTreatWarningsAsErrors>false</CodeAnalysisTreatWarningsAsErrors>
+		    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+		    <InvariantGlobalization>false</InvariantGlobalization>
+		    <NuGetAudit>false</NuGetAudit>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
     </PropertyGroup>
 	<PropertyGroup>
 		<NoWarn>$(NoWarn);CA1873;CA2007</NoWarn>
