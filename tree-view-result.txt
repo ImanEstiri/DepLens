@@ -17,12 +17,18 @@ G:.
 |   tree-view-result.txt
 |   tree-view.bat
 |   
++---.github
+|   \---workflows
+|           build-and-test.yml
+|           
 +---artifacts
 |   \---ImanSoftware.DepLens.Cli
 |           ImanSoftware.DepLens.Cli.1.0.0.nupkg
 |           ImanSoftware.DepLens.Cli.1.0.0.snupkg
 |           ImanSoftware.DepLens.Cli.1.0.1.nupkg
 |           ImanSoftware.DepLens.Cli.1.0.1.snupkg
+|           ImanSoftware.DepLens.Cli.1.1.0.nupkg
+|           ImanSoftware.DepLens.Cli.1.1.0.snupkg
 |           
 +---docs
 |   \---images
@@ -351,6 +357,7 @@ G:.
     |       |   |   \---net10.0
     |       |   |       |   .msCoverageSourceRootsMapping_ImanSoftware.DepLens.Tests
     |       |   |       |   CoverletSourceRootsMapping_ImanSoftware.DepLens.Tests
+    |       |   |       |   FluentAssertions.dll
     |       |   |       |   ImanSoftware.DepLens.Abstractions.dll
     |       |   |       |   ImanSoftware.DepLens.Abstractions.pdb
     |       |   |       |   ImanSoftware.DepLens.Abstractions.xml
@@ -482,6 +489,7 @@ G:.
     |       |       \---net10.0
     |       |           |   .msCoverageSourceRootsMapping_ImanSoftware.DepLens.Tests
     |       |           |   CoverletSourceRootsMapping_ImanSoftware.DepLens.Tests
+    |       |           |   FluentAssertions.dll
     |       |           |   ImanSoftware.DepLens.Abstractions.dll
     |       |           |   ImanSoftware.DepLens.Abstractions.pdb
     |       |           |   ImanSoftware.DepLens.Abstractions.xml
@@ -612,6 +620,7 @@ G:.
     |       +---Core
     |       |   \---Implementation
     |       |           ParserServiceTests.cs
+    |       |           ProjectReferenceLinkerServiceTests.cs
     |       |           
     |       \---obj
     |           |   ImanSoftware.DepLens.Tests.csproj.nuget.dgspec.json
@@ -894,6 +903,8 @@ G:.
             |       |   ImanSoftware.DepLens.Cli.1.0.0.symbols.nuspec
             |       |   ImanSoftware.DepLens.Cli.1.0.1.nuspec
             |       |   ImanSoftware.DepLens.Cli.1.0.1.symbols.nuspec
+            |       |   ImanSoftware.DepLens.Cli.1.1.0.nuspec
+            |       |   ImanSoftware.DepLens.Cli.1.1.0.symbols.nuspec
             |       |   
             |       \---net10.0
             |           |   .NETCoreApp,Version=v10.0.AssemblyAttributes.cs
