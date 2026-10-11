@@ -41,6 +41,7 @@ Then open the generated `dependency-graph.html` in a browser.
 - Central Package Management resolved per project, with the version source (explicit, central, or override) shown
 - A tree sidebar that stays in sync with the graph — click either one to explore
 
+
 ## Learn more
 
 Full documentation, known limitations, the roadmap, and how to build from source or contribute all live in the main repository:
