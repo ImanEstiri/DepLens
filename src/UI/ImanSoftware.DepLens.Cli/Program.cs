@@ -1,13 +1,18 @@
 ﻿using ImanSoftware.DepLens.Cli.Commands.Analyze;
 using Spectre.Console;
 using Spectre.Console.Cli;
+using System.Reflection;
 
 var app = new CommandApp();
 
 app.Configure(config =>
 {
     config.SetApplicationName("deplens");
-    config.SetApplicationVersion("1.0.0");
+
+    var version = typeof(Program).Assembly
+    .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?
+    .InformationalVersion?.Split('+')[0] ?? "unknown";
+    config.SetApplicationVersion(version);
 
     config.AddCommand<AnalyzeCommand>("analyze")
     .WithDescription("Analyze a .NET solution and generate a dependency graph.")
