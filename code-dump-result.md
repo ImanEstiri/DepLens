@@ -685,6 +685,34 @@ render("pkg");
 ``` 
 
 
+### LICENSE 
+
+```text 
+MIT License
+
+Copyright (c) [2026] [Iman Estiri]
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+``` 
+
+
 ### nuget 
 
 ```xml 
@@ -701,6 +729,1476 @@ render("pkg");
 		</packageSource>
 	</packageSourceMapping>
 </configuration>
+``` 
+
+
+### publish 
+
+```powershell 
+param(
+    [Parameter(Mandatory = $true)]
+    [string]$ProjectName,
+
+    [switch]$SkipPush
+)
+
+$ErrorActionPreference = "Stop"
+
+$solutionRoot  = $PSScriptRoot
+$srcRoot       = Join-Path $solutionRoot "src"
+$artifactsPath = Join-Path $solutionRoot "artifacts\$ProjectName"
+
+# ===================================================================
+# Logging helpers
+#   Write-Step   -> yellow : status / decision messages
+#   Write-Action -> blue   : "about to run a command" announcements
+#   (actual command output is left uncolored / default terminal color)
+#   Add-Summary  -> records a line for the final summary block
+# ===================================================================
+
+$script:summary = @()
+
+function Write-Step {
+    param([Parameter(Mandatory = $true)][string]$Message)
+    Write-Host $Message -ForegroundColor Yellow
+}
+
+function Write-Action {
+    param([Parameter(Mandatory = $true)][string]$Message)
+    Write-Host $Message -ForegroundColor Blue
+}
+
+function Add-Summary {
+    param([Parameter(Mandatory = $true)][string]$Message)
+    $script:summary += $Message
+}
+
+function Show-Summary {
+    Write-Host ""
+    Write-Host "===================== Summary =====================" -ForegroundColor Cyan
+    if ($script:summary.Count -eq 0) {
+        Write-Host " (nothing was recorded)" -ForegroundColor Cyan
+    } else {
+        foreach ($line in $script:summary) {
+            Write-Host " - $line" -ForegroundColor Cyan
+        }
+    }
+    Write-Host "=====================================================" -ForegroundColor Cyan
+}
+
+function Bump-PatchVersion {
+    param([Parameter(Mandatory = $true)][string]$Version)
+
+    if ($Version -notmatch '^(?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+)(?<suffix>[-+].*)?$') {
+        throw "Version '$Version' is not in a recognizable Major.Minor.Patch format."
+    }
+
+    $major  = $Matches['major']
+    $minor  = $Matches['minor']
+    $patch  = [int]$Matches['patch'] + 1
+    $suffix = $Matches['suffix']
+
+    return "$major.$minor.$patch$suffix"
+}
+
+function Get-CsprojVersion {
+    param([Parameter(Mandatory = $true)][string]$Path)
+    [xml]$xml = Get-Content $Path
+    $value = $xml.Project.PropertyGroup.Version | Where-Object { $_ } | Select-Object -First 1
+    # Explicit cast: the pipeline above can hand back a wrapped value that
+    # later fails when assigned to an XmlAttribute, even though it prints fine elsewhere.
+    return [string]$value
+}
+
+function Set-CsprojVersion {
+    param(
+        [Parameter(Mandatory = $true)][string]$Path,
+        [Parameter(Mandatory = $true)][string]$NewVersion
+    )
+    [xml]$xml = Get-Content $Path
+    $propertyGroup = $xml.Project.PropertyGroup | Where-Object { $_.Version } | Select-Object -First 1
+
+    if (-not $propertyGroup) {
+        throw "Could not find a <PropertyGroup> with a <Version> element in $Path"
+    }
+
+    $propertyGroup.Version = [string]$NewVersion
+    $xml.Save($Path)
+}
+
+# Runs an external process under a hard, PowerShell-enforced wall-clock timeout.
+# This exists because "dotnet nuget push --timeout N" only bounds the actual
+# upload request — the preceding service-index lookup (GET .../v3/index.json)
+# has its own internal ~100s timeout that --timeout does NOT control. If the
+# process doesn't exit in time we kill the whole process tree (dotnet can spawn
+# child processes) via taskkill /T /F so nothing is left running in the background.
+#
+# Uses System.Diagnostics.Process directly (not the Start-Process cmdlet) because
+# Start-Process -PassThru combined with output redirection can unreliably report
+# ExitCode even after the process has exited successfully.
+function ConvertTo-ArgumentString {
+    param([string[]]$Arguments)
+    return ($Arguments | ForEach-Object {
+        if ($_ -match '[\s"]') {
+            '"' + ($_ -replace '"', '\"') + '"'
+        } else {
+            $_
+        }
+    }) -join ' '
+}
+
+function Invoke-ProcessWithTimeout {
+    param(
+        [Parameter(Mandatory = $true)][string]$FilePath,
+        [Parameter(Mandatory = $true)][string[]]$ArgumentList,
+        [Parameter(Mandatory = $true)][int]$TimeoutSeconds
+    )
+
+    $psi = New-Object System.Diagnostics.ProcessStartInfo
+    $psi.FileName               = $FilePath
+    $psi.Arguments              = ConvertTo-ArgumentString -Arguments $ArgumentList
+    $psi.UseShellExecute        = $false
+    $psi.RedirectStandardOutput = $true
+    $psi.RedirectStandardError  = $true
+    $psi.CreateNoWindow         = $true
+
+    $proc = New-Object System.Diagnostics.Process
+    $proc.StartInfo = $psi
+
+    $stdOutBuilder = New-Object System.Text.StringBuilder
+    $stdErrBuilder = New-Object System.Text.StringBuilder
+
+    $outEvent = Register-ObjectEvent -InputObject $proc -EventName OutputDataReceived -Action {
+        if ($EventArgs.Data) { $Event.MessageData.AppendLine($EventArgs.Data) | Out-Null }
+    } -MessageData $stdOutBuilder
+
+    $errEvent = Register-ObjectEvent -InputObject $proc -EventName ErrorDataReceived -Action {
+        if ($EventArgs.Data) { $Event.MessageData.AppendLine($EventArgs.Data) | Out-Null }
+    } -MessageData $stdErrBuilder
+
+    try {
+        $proc.Start() | Out-Null
+        $proc.BeginOutputReadLine()
+        $proc.BeginErrorReadLine()
+
+        $exited = $proc.WaitForExit($TimeoutSeconds * 1000)
+
+        if (-not $exited) {
+            try {
+                Start-Process -FilePath "taskkill.exe" -ArgumentList "/PID $($proc.Id) /T /F" -NoNewWindow -Wait -ErrorAction SilentlyContinue | Out-Null
+            } catch {}
+            Start-Sleep -Milliseconds 300
+        } else {
+            # Blocks only until the already-exited process's streams finish flushing.
+            $proc.WaitForExit()
+        }
+    }
+    finally {
+        Unregister-Event -SourceIdentifier $outEvent.Name -ErrorAction SilentlyContinue
+        Unregister-Event -SourceIdentifier $errEvent.Name -ErrorAction SilentlyContinue
+        Remove-Job $outEvent, $errEvent -Force -ErrorAction SilentlyContinue
+    }
+
+    if ($stdOutBuilder.Length -gt 0) { Write-Host $stdOutBuilder.ToString().TrimEnd() }
+    if ($stdErrBuilder.Length -gt 0) { Write-Host $stdErrBuilder.ToString().TrimEnd() }
+
+    if (-not $exited) {
+        return [PSCustomObject]@{ TimedOut = $true; ExitCode = $null }
+    }
+
+    return [PSCustomObject]@{ TimedOut = $false; ExitCode = $proc.ExitCode }
+}
+
+# ===================================================================
+# Main
+# ===================================================================
+
+try {
+    # DepLens nests projects under src\Core, src\UI, src\Playground, ... (unlike Platform's
+    # flat src\<ProjectName>), so we locate the .csproj by name instead of assuming a fixed path.
+    Write-Step "looking for $ProjectName.csproj under $srcRoot ..."
+
+    $csprojFile = Get-ChildItem -Path $srcRoot -Filter "$ProjectName.csproj" -Recurse -ErrorAction SilentlyContinue |
+        Select-Object -First 1
+
+    if (-not $csprojFile) {
+        Write-Error "No project named '$ProjectName' found under $srcRoot (searched recursively)."
+    }
+
+    $projectPath = $csprojFile.DirectoryName
+    $csprojPath  = $csprojFile.FullName
+    Write-Step "found project at $projectPath"
+
+    # ===== API Key =====
+    # Recommendation: do NOT hardcode the key in this file. Set it once, outside of git:
+    #   setx NUGET_API_KEY "your-real-key-here"
+    # Then close and reopen your terminal / Visual Studio so the new value is loaded.
+    $ApiKey = $env:NUGET_API_KEY
+
+    if ([string]::IsNullOrWhiteSpace($ApiKey)) {
+        Write-Error "Environment variable NUGET_API_KEY is not set. Run 'setx NUGET_API_KEY your-key' and restart your terminal."
+    }
+
+    # Note: previous builds are kept intentionally, so you have a local history
+    # of every version ever packed. We don't delete anything here.
+    if (-not (Test-Path $artifactsPath)) {
+        Write-Step "artifacts folder for $ProjectName does not exist yet; creating $artifactsPath"
+        New-Item -Path $artifactsPath -ItemType Directory | Out-Null
+    }
+
+    # ---------------------------------------------------------------
+    # Pack (auto-bumping the patch version if it was already packed)
+    # ---------------------------------------------------------------
+
+    $version = Get-CsprojVersion -Path $csprojPath
+
+    if (-not $version) {
+        Write-Error "Could not read <Version> from $csprojPath. Make sure it's set explicitly in the project file."
+    }
+
+    $originalVersion = $version
+
+    Write-Step "checking artifacts/$ProjectName for any $version output."
+    $expectedNupkg = Join-Path $artifactsPath "$ProjectName.$version.nupkg"
+
+    while (Test-Path $expectedNupkg) {
+        $previous = $version
+        $version  = Bump-PatchVersion -Version $version
+        Write-Step "auto bumping version for $ProjectName from $previous to $version"
+        Add-Summary "Version auto-bumped: $previous -> $version (an artifact for $previous already existed)"
+        Write-Step "checking artifacts/$ProjectName for any $version output."
+        $expectedNupkg = Join-Path $artifactsPath "$ProjectName.$version.nupkg"
+    }
+
+    Write-Step "version $version is free; no existing artifact found."
+
+    if ($version -ne $originalVersion) {
+        Set-CsprojVersion -Path $csprojPath -NewVersion $version
+        Write-Step "updated <Version> in $csprojPath : $originalVersion -> $version"
+        Add-Summary "csproj updated: $ProjectName Version $originalVersion -> $version"
+    } else {
+        Add-Summary "Version used: $ProjectName $version (no bump needed)"
+    }
+
+    Write-Action "packing $ProjectName v$version ..."
+    dotnet pack $projectPath -c Release --output $artifactsPath
+    if ($LASTEXITCODE -ne 0) {
+        Add-Summary "FAILED: dotnet pack for $ProjectName v$version"
+        Write-Error "Pack failed."
+    }
+    Add-Summary "Packed: $ProjectName v$version -> $artifactsPath"
+
+    # Multiple versions may already sit in this folder from previous runs.
+    # The one we just built is always the most recently modified file, so we
+    # sort by LastWriteTime and take the newest — nothing else gets touched.
+    $nupkg = Get-ChildItem -Path $artifactsPath -Filter "*.nupkg" |
+        Sort-Object LastWriteTime -Descending |
+        Select-Object -First 1
+
+    if (-not $nupkg) {
+        Write-Error "No .nupkg file was found after packing."
+    }
+
+    $snupkgPath = Join-Path $artifactsPath "$ProjectName.$version.snupkg"
+
+    Write-Step "package built: $($nupkg.Name)"
+
+    if ($SkipPush) {
+        Write-Step "SkipPush is set; packed only, not pushed."
+        Add-Summary "Push skipped (-SkipPush): $($nupkg.Name) left in $artifactsPath"
+        return
+    }
+
+    # ---------------------------------------------------------------
+    # Push (15s timeout; on failure, remove the artifacts we just built
+    # so the next run doesn't see a "used" version and bump for no reason)
+    # ---------------------------------------------------------------
+
+    Write-Action "pushing package to nuget ..."
+
+    $pushTimeoutSeconds = 30
+    $pushArgs = @(
+        'nuget', 'push', $nupkg.FullName,
+        '--source', 'https://api.nuget.org/v3/index.json',
+        '--api-key', $ApiKey,
+        '--skip-duplicate',
+        '--timeout', "$pushTimeoutSeconds"
+    )
+
+    $pushResult = Invoke-ProcessWithTimeout -FilePath 'dotnet' -ArgumentList $pushArgs -TimeoutSeconds $pushTimeoutSeconds
+
+    if ($pushResult.TimedOut) {
+        Write-Step "push did not finish within ${pushTimeoutSeconds}s; the dotnet process was forcefully terminated."
+        Add-Summary "Push timed out after ${pushTimeoutSeconds}s (process killed): $ProjectName v$version"
+    } elseif ($pushResult.ExitCode -ne 0) {
+        Write-Step "push failed (exit code $($pushResult.ExitCode))."
+        Add-Summary "Push failed (exit code $($pushResult.ExitCode)): $ProjectName v$version"
+    }
+
+    if ($pushResult.TimedOut -or $pushResult.ExitCode -ne 0) {
+        Write-Step "removing the artifacts just built for v$version so the version isn't wasted."
+
+        if (Test-Path $nupkg.FullName) {
+            Remove-Item $nupkg.FullName -Force
+            Write-Step "removed $($nupkg.Name)"
+            Add-Summary "Removed after failed push: $($nupkg.Name)"
+        }
+        if (Test-Path $snupkgPath) {
+            Remove-Item $snupkgPath -Force
+            Write-Step "removed $(Split-Path $snupkgPath -Leaf)"
+            Add-Summary "Removed after failed push: $(Split-Path $snupkgPath -Leaf)"
+        }
+
+        Add-Summary "FAILED: dotnet nuget push for $ProjectName v$version"
+        Write-Error "Push failed."
+    }
+
+    Write-Step "$($nupkg.Name) was successfully published to NuGet.org."
+    Add-Summary "Pushed to NuGet.org: $($nupkg.Name)"
+
+    # NOTE: unlike the Platform script, there is intentionally no "sync Directory.Packages.props"
+    # or "bump dependent projects" step here. Nothing in this repo currently consumes DepLens
+    # packages via <PackageReference> — Core references Abstractions, and Cli references Core,
+    # both via <ProjectReference>. If that ever changes (e.g. Abstractions/Core get published
+    # too and something else in this repo takes a PackageReference on them), port that logic
+    # back in from publish.ps1 in ImanSoftware.Platform.
+}
+finally {
+    Show-Summary
+}
+
+``` 
+
+
+### README 
+
+````markdown 
+# DepLens
+
+**See every solution, project and NuGet package in your codebase — with Central Package Management resolved — in one interactive report.**
+
+DepLens is a dependency-analysis engine for .NET codebases, with a growing set of front ends built on top of it. Today that's a command-line tool; a desktop (Windows Forms) UI is on the roadmap.
+
+[![NuGet](https://img.shields.io/nuget/v/ImanSoftware.DepLens.Cli.svg)](https://www.nuget.org/packages/ImanSoftware.DepLens.Cli)
+[![Downloads](https://img.shields.io/nuget/dt/ImanSoftware.DepLens.Cli.svg)](https://www.nuget.org/packages/ImanSoftware.DepLens.Cli)
+[![License: MIT](https://img.shields.io/github/license/ImanEstiri/DepLens.svg)](LICENSE.txt)
+
+![DepLens interactive dependency report](docs/images/graph-sample-1.gif)
+
+Point DepLens at a folder — a single repo or a whole monorepo with several solutions — and it produces one self-contained HTML file you can open in any browser. No server, no restore step, no configuration.
+
+## Why DepLens?
+
+`dotnet list package` tells you what one project references. DepLens shows the whole picture at once:
+
+- **Solution-aware.** Scans a directory containing many `.sln` / `.slnx` files and draws each solution as its own group. A project that belongs to two solutions sits in the overlap.
+- **Central Package Management, done right.** Finds the nearest `Directory.Packages.props` for each project, honors per-project opt-out and `VersionOverride`, and shows *where* every version came from.
+- **Two views of the same data.** A package-level dependency graph, and a solution-architecture view that shows only project-to-project direction.
+- **Explorable.** A collapsible tree sidebar stays in sync with the graph: click a node and the tree expands to it; click a tree item and the graph highlights its relationships.
+
+## Installation
+
+DepLens is a .NET global tool and requires the **.NET 10** runtime.
+
+```bash
+dotnet tool install --global ImanSoftware.DepLens.Cli
+```
+
+Verify:
+
+```bash
+deplens --version
+```
+
+## Usage
+
+Analyze the current directory:
+
+```bash
+deplens analyze
+```
+
+Analyze a specific directory (it must be a **directory**, not a `.sln` or `.csproj` file):
+
+```bash
+deplens analyze "C:\Projects\MyApp"
+```
+
+Choose where the report is written (defaults to the analyzed directory):
+
+```bash
+deplens analyze "C:\Projects\MyApp" --output ".\reports"
+# or
+deplens analyze "C:\Projects\MyApp" -o ".\reports"
+```
+
+Example output:
+
+```text
+────────────────────────────────────────────── DepLens
+Scanning : C:\Projects\MyApp
+Output   : C:\Projects\MyApp
+
+✓ Analyzed 12 project(s)
+✓ Report: C:\Projects\MyApp\dependency-graph.html
+
+Open: C:\Projects\MyApp\dependency-graph.html
+```
+
+Open `dependency-graph.html` in a browser. The report is a single file; D3.js and the web fonts are loaded from CDNs, so you need an internet connection when you open it.
+
+## What it detects
+
+**Projects**
+- `ProjectReference` relationships between projects
+- Membership of each project in one or more solutions (`.sln` and `.slnx`)
+- References to projects outside the scanned directory (shown, but not analyzed further)
+
+**NuGet packages**
+- `PackageReference` dependencies per project, with resolved versions
+- Where each version comes from: explicit in the `.csproj`, Central Package Management, or `VersionOverride`
+- Packages that flow in through `ProjectReference` chains, marked as transitive
+
+## How it works
+
+```mermaid
+flowchart LR
+  A[Scan directory] --> B[Parse .sln/.slnx and Directory.Packages.props]
+  B --> C[Orient each project: its solutions and nearest central versions]
+  C --> D[Parse .csproj files]
+  D --> E[Link project references]
+  E --> F[Build dependency graph]
+  F --> G[Interactive HTML report]
+```
+
+Every stage is a small, separate service, so each is easy to read, change, or replace.
+
+A few behaviors worth knowing:
+
+- **Central versions are per project, not per solution.** Like MSBuild, DepLens uses the *nearest* `Directory.Packages.props` above each project. A project opts out with `<ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>`.
+- **Renamed project files are tolerated.** If a `ProjectReference` or solution entry points to a `.csproj` that no longer exists by that name, but the target folder contains exactly one discovered project, DepLens resolves to it.
+
+## Known limitations
+
+DepLens is young. Here is what it does not do yet:
+
+- Transitive **packages** are derived from `ProjectReference` chains. A NuGet package's own dependencies are not resolved yet.
+- Only `.csproj` projects are analyzed (no `.fsproj` / `.vbproj`).
+- MSBuild properties inside versions (for example `$(SomeVersion)`) are not expanded, and `Directory.Build.props` is not applied.
+- Cycle and version-conflict detection are not implemented (see the roadmap).
+
+## Roadmap
+
+- [ ] Windows Forms desktop UI (in addition to the CLI)
+- [ ] Dependency cycle detection
+- [ ] NuGet version conflict detection
+- [ ] JSON output
+- [ ] Additional report formats
+- [ ] Dependency path analysis
+- [ ] Architecture rules
+- [ ] CI/CD integration
+- [ ] Advanced graph filtering
+- [ ] More dependency types (for example plain assembly references)
+
+## Repository layout
+
+```text
+DepLens/
+├── src/
+│   ├── Core/
+│   │   ├── ImanSoftware.DepLens.Abstractions/   # models and service contracts
+│   │   └── ImanSoftware.DepLens.Core/           # scanner, parser, resolver, graph builder, HTML report
+│   ├── UI/
+│   │   └── ImanSoftware.DepLens.Cli/            # the `deplens` command-line tool (today's front end; a desktop UI is planned)
+│   └── Playground/                              # console app for manual testing
+├── Directory.Build.props
+├── Directory.Packages.props
+├── DepLens.slnx
+└── LICENSE.txt
+```
+
+## Building from source
+
+```bash
+git clone https://github.com/ImanEstiri/DepLens.git
+cd DepLens
+dotnet build
+```
+
+Run the CLI directly from source:
+
+```bash
+dotnet run --project src/UI/ImanSoftware.DepLens.Cli -- analyze
+dotnet run --project src/UI/ImanSoftware.DepLens.Cli -- analyze "C:\Projects\MyApp"
+```
+
+## Contributing
+
+Contributions are welcome — bug reports, ideas, and pull requests alike.
+
+- **Found a bug or have an idea?** Open an [issue](https://github.com/ImanEstiri/DepLens/issues). If you can, include a small example `.csproj`/`.sln` structure that reproduces it.
+- **Want to code?** Look for issues labeled `good first issue` or `help wanted`, or pick something from the roadmap above and say so in an issue first.
+- **Sending a pull request?** Keep it focused, make sure `dotnet build` passes, and describe what changed and why.
+
+The pipeline is split into small services (`DirectoryScannerService`, `ParserService`, `ProjectOrienterService`, `ProjectReferenceLinkerService`, `DependencyGraphBuilderService`, `HtmlGraphReportService`), so most changes touch only one file.
+
+## License
+
+DepLens is released under the [MIT License](LICENSE.txt).
+
+```` 
+
+
+### tree-view-result 
+
+```text 
+Folder PATH listing for volume Local Disk
+Volume serial number is C0AD-37BC
+G:.
+|   .editorconfig
+|   .gitattributes
+|   .gitignore
+|   code-dump-result.md
+|   code-dump.bat
+|   dependency-graph.html
+|   DepLens.slnx
+|   Directory.Build.props
+|   Directory.Packages.props
+|   LICENSE.txt
+|   nuget.config
+|   publish.ps1
+|   README.md
+|   tree-view-result.txt
+|   tree-view.bat
+|   
++---.github
+|   \---workflows
+|           build-and-test.yml
+|           
++---artifacts
+|   \---ImanSoftware.DepLens.Cli
+|           ImanSoftware.DepLens.Cli.1.0.0.nupkg
+|           ImanSoftware.DepLens.Cli.1.0.0.snupkg
+|           ImanSoftware.DepLens.Cli.1.0.1.nupkg
+|           ImanSoftware.DepLens.Cli.1.0.1.snupkg
+|           ImanSoftware.DepLens.Cli.1.1.0.nupkg
+|           ImanSoftware.DepLens.Cli.1.1.0.snupkg
+|           
++---docs
+|   \---images
+|           graph-sample-1.gif
+|           graph-sample-2.gif
+|           installation-and-usage.gif
+|           installation-and-verify.gif
+|           usage.gif
+|           
+\---src
+    +---Core
+    |   +---ImanSoftware.DepLens.Abstractions
+    |   |   |   ImanSoftware.DepLens.Abstractions.csproj
+    |   |   |   
+    |   |   +---bin
+    |   |   |   +---Debug
+    |   |   |   |   \---net10.0
+    |   |   |   |           ImanSoftware.DepLens.Abstractions.deps.json
+    |   |   |   |           ImanSoftware.DepLens.Abstractions.dll
+    |   |   |   |           ImanSoftware.DepLens.Abstractions.pdb
+    |   |   |   |           ImanSoftware.DepLens.Abstractions.xml
+    |   |   |   |           
+    |   |   |   \---Release
+    |   |   |       \---net10.0
+    |   |   |               ImanSoftware.DepLens.Abstractions.deps.json
+    |   |   |               ImanSoftware.DepLens.Abstractions.dll
+    |   |   |               ImanSoftware.DepLens.Abstractions.pdb
+    |   |   |               ImanSoftware.DepLens.Abstractions.xml
+    |   |   |               
+    |   |   +---Models
+    |   |   |   +---DirectoryScanner
+    |   |   |   |       DiscoveredFiles.cs
+    |   |   |   |       
+    |   |   |   +---Enums
+    |   |   |   |       DependencyScope.cs
+    |   |   |   |       DependencyType.cs
+    |   |   |   |       FileType.cs
+    |   |   |   |       PackageVersionSourceType.cs
+    |   |   |   |       
+    |   |   |   +---Graph
+    |   |   |   |       Dependency.cs
+    |   |   |   |       ProjectDependencyReport.cs
+    |   |   |   |       
+    |   |   |   \---Parser
+    |   |   |           IParsedContent.cs
+    |   |   |           PackageDependency.cs
+    |   |   |           ParsedFile.cs
+    |   |   |           ParsedPackagesProps.cs
+    |   |   |           ParsedProject.cs
+    |   |   |           ParsedSolution.cs
+    |   |   |           ProjectContext.cs
+    |   |   |           ProjectReferenceLink.cs
+    |   |   |           RawProjectReference.cs
+    |   |   |           ResolvedProjectReferences.cs
+    |   |   |           
+    |   |   +---obj
+    |   |   |   |   ImanSoftware.DepLens.Abstractions.csproj.nuget.dgspec.json
+    |   |   |   |   ImanSoftware.DepLens.Abstractions.csproj.nuget.g.props
+    |   |   |   |   ImanSoftware.DepLens.Abstractions.csproj.nuget.g.targets
+    |   |   |   |   project.assets.json
+    |   |   |   |   project.nuget.cache
+    |   |   |   |   
+    |   |   |   +---Debug
+    |   |   |   |   \---net10.0
+    |   |   |   |       |   .NETCoreApp,Version=v10.0.AssemblyAttributes.cs
+    |   |   |   |       |   ImanSoftware.DepLens.Abstractions.AssemblyInfo.cs
+    |   |   |   |       |   ImanSoftware.DepLens.Abstractions.AssemblyInfoInputs.cache
+    |   |   |   |       |   ImanSoftware.DepLens.Abstractions.assets.cache
+    |   |   |   |       |   ImanSoftware.DepLens.Abstractions.csproj.AssemblyReference.cache
+    |   |   |   |       |   ImanSoftware.DepLens.Abstractions.csproj.CoreCompileInputs.cache
+    |   |   |   |       |   ImanSoftware.DepLens.Abstractions.csproj.FileListAbsolute.txt
+    |   |   |   |       |   ImanSoftware.DepLens.Abstractions.dll
+    |   |   |   |       |   ImanSoftware.DepLens.Abstractions.GeneratedMSBuildEditorConfig.editorconfig
+    |   |   |   |       |   ImanSoftware.DepLens.Abstractions.GlobalUsings.g.cs
+    |   |   |   |       |   ImanSoftware.DepLens.Abstractions.pdb
+    |   |   |   |       |   ImanSoftware.DepLens.Abstractions.sourcelink.json
+    |   |   |   |       |   ImanSoftware.DepLens.Abstractions.xml
+    |   |   |   |       |   
+    |   |   |   |       +---ref
+    |   |   |   |       |       ImanSoftware.DepLens.Abstractions.dll
+    |   |   |   |       |       
+    |   |   |   |       \---refint
+    |   |   |   |               ImanSoftware.DepLens.Abstractions.dll
+    |   |   |   |               
+    |   |   |   \---Release
+    |   |   |       \---net10.0
+    |   |   |           |   .NETCoreApp,Version=v10.0.AssemblyAttributes.cs
+    |   |   |           |   ImanSoftware.DepLens.Abstractions.AssemblyInfo.cs
+    |   |   |           |   ImanSoftware.DepLens.Abstractions.AssemblyInfoInputs.cache
+    |   |   |           |   ImanSoftware.DepLens.Abstractions.assets.cache
+    |   |   |           |   ImanSoftware.DepLens.Abstractions.csproj.AssemblyReference.cache
+    |   |   |           |   ImanSoftware.DepLens.Abstractions.csproj.CoreCompileInputs.cache
+    |   |   |           |   ImanSoftware.DepLens.Abstractions.csproj.FileListAbsolute.txt
+    |   |   |           |   ImanSoftware.DepLens.Abstractions.dll
+    |   |   |           |   ImanSoftware.DepLens.Abstractions.GeneratedMSBuildEditorConfig.editorconfig
+    |   |   |           |   ImanSoftware.DepLens.Abstractions.GlobalUsings.g.cs
+    |   |   |           |   ImanSoftware.DepLens.Abstractions.pdb
+    |   |   |           |   ImanSoftware.DepLens.Abstractions.sourcelink.json
+    |   |   |           |   ImanSoftware.DepLens.Abstractions.xml
+    |   |   |           |   
+    |   |   |           +---ref
+    |   |   |           |       ImanSoftware.DepLens.Abstractions.dll
+    |   |   |           |       
+    |   |   |           \---refint
+    |   |   |                   ImanSoftware.DepLens.Abstractions.dll
+    |   |   |                   
+    |   |   \---Services
+    |   |           IDependencyGraphBuilderService.cs
+    |   |           IDepLensService.cs
+    |   |           IDirectoryScanner.cs
+    |   |           IHtmlGraphReportService.cs
+    |   |           IParserService.cs
+    |   |           IProjectOrienterService.cs
+    |   |           IProjectReferenceLinkerService.cs
+    |   |           IService.cs
+    |   |           
+    |   \---ImanSoftware.DepLens.Core
+    |       |   ImanSoftware.DepLens.Core.csproj
+    |       |   
+    |       +---bin
+    |       |   +---Debug
+    |       |   |   \---net10.0
+    |       |   |           ImanSoftware.DepLens.Abstractions.dll
+    |       |   |           ImanSoftware.DepLens.Abstractions.pdb
+    |       |   |           ImanSoftware.DepLens.Abstractions.xml
+    |       |   |           ImanSoftware.DepLens.Core.deps.json
+    |       |   |           ImanSoftware.DepLens.Core.dll
+    |       |   |           ImanSoftware.DepLens.Core.pdb
+    |       |   |           ImanSoftware.DepLens.Core.xml
+    |       |   |           
+    |       |   \---Release
+    |       |       \---net10.0
+    |       |               ImanSoftware.DepLens.Abstractions.dll
+    |       |               ImanSoftware.DepLens.Abstractions.pdb
+    |       |               ImanSoftware.DepLens.Abstractions.xml
+    |       |               ImanSoftware.DepLens.Core.deps.json
+    |       |               ImanSoftware.DepLens.Core.dll
+    |       |               ImanSoftware.DepLens.Core.pdb
+    |       |               ImanSoftware.DepLens.Core.xml
+    |       |               
+    |       +---Factory
+    |       |       DepLensServiceFactory.cs
+    |       |       
+    |       +---Implementation
+    |       |       DependencyGraphBuilderService.cs
+    |       |       DepLensService.cs
+    |       |       DirectoryScannerService.cs
+    |       |       HtmlGraphReportService.cs
+    |       |       ParserService.cs
+    |       |       ProjectOrienterService.cs
+    |       |       ProjectReferenceLinkerService.cs
+    |       |       
+    |       +---obj
+    |       |   |   ImanSoftware.DepLens.Core.csproj.nuget.dgspec.json
+    |       |   |   ImanSoftware.DepLens.Core.csproj.nuget.g.props
+    |       |   |   ImanSoftware.DepLens.Core.csproj.nuget.g.targets
+    |       |   |   project.assets.json
+    |       |   |   project.nuget.cache
+    |       |   |   
+    |       |   +---Debug
+    |       |   |   \---net10.0
+    |       |   |       |   .NETCoreApp,Version=v10.0.AssemblyAttributes.cs
+    |       |   |       |   ImanSoft.214A8546.Up2Date
+    |       |   |       |   ImanSoftware.DepLens.Core.AssemblyInfo.cs
+    |       |   |       |   ImanSoftware.DepLens.Core.AssemblyInfoInputs.cache
+    |       |   |       |   ImanSoftware.DepLens.Core.assets.cache
+    |       |   |       |   ImanSoftware.DepLens.Core.csproj.AssemblyReference.cache
+    |       |   |       |   ImanSoftware.DepLens.Core.csproj.BuildWithSkipAnalyzers
+    |       |   |       |   ImanSoftware.DepLens.Core.csproj.CoreCompileInputs.cache
+    |       |   |       |   ImanSoftware.DepLens.Core.csproj.FileListAbsolute.txt
+    |       |   |       |   ImanSoftware.DepLens.Core.dll
+    |       |   |       |   ImanSoftware.DepLens.Core.GeneratedMSBuildEditorConfig.editorconfig
+    |       |   |       |   ImanSoftware.DepLens.Core.GlobalUsings.g.cs
+    |       |   |       |   ImanSoftware.DepLens.Core.pdb
+    |       |   |       |   ImanSoftware.DepLens.Core.sourcelink.json
+    |       |   |       |   ImanSoftware.DepLens.Core.xml
+    |       |   |       |   
+    |       |   |       +---ref
+    |       |   |       |       ImanSoftware.DepLens.Core.dll
+    |       |   |       |       
+    |       |   |       \---refint
+    |       |   |               ImanSoftware.DepLens.Core.dll
+    |       |   |               
+    |       |   \---Release
+    |       |       \---net10.0
+    |       |           |   .NETCoreApp,Version=v10.0.AssemblyAttributes.cs
+    |       |           |   ImanSoft.214A8546.Up2Date
+    |       |           |   ImanSoftware.DepLens.Core.AssemblyInfo.cs
+    |       |           |   ImanSoftware.DepLens.Core.AssemblyInfoInputs.cache
+    |       |           |   ImanSoftware.DepLens.Core.assets.cache
+    |       |           |   ImanSoftware.DepLens.Core.csproj.AssemblyReference.cache
+    |       |           |   ImanSoftware.DepLens.Core.csproj.CoreCompileInputs.cache
+    |       |           |   ImanSoftware.DepLens.Core.csproj.FileListAbsolute.txt
+    |       |           |   ImanSoftware.DepLens.Core.dll
+    |       |           |   ImanSoftware.DepLens.Core.GeneratedMSBuildEditorConfig.editorconfig
+    |       |           |   ImanSoftware.DepLens.Core.GlobalUsings.g.cs
+    |       |           |   ImanSoftware.DepLens.Core.pdb
+    |       |           |   ImanSoftware.DepLens.Core.sourcelink.json
+    |       |           |   ImanSoftware.DepLens.Core.xml
+    |       |           |   
+    |       |           +---ref
+    |       |           |       ImanSoftware.DepLens.Core.dll
+    |       |           |       
+    |       |           \---refint
+    |       |                   ImanSoftware.DepLens.Core.dll
+    |       |                   
+    |       \---Properties
+    |               AssemblyInfo.cs
+    |               
+    +---Playground
+    |   \---ImanSoftware.DepLens.Playground
+    |       |   ImanSoftware.DepLens.Playground.csproj
+    |       |   Program.cs
+    |       |   
+    |       +---bin
+    |       |   +---Debug
+    |       |   |   \---net10.0
+    |       |   |           ImanSoftware.DepLens.Abstractions.dll
+    |       |   |           ImanSoftware.DepLens.Abstractions.pdb
+    |       |   |           ImanSoftware.DepLens.Abstractions.xml
+    |       |   |           ImanSoftware.DepLens.Core.dll
+    |       |   |           ImanSoftware.DepLens.Core.pdb
+    |       |   |           ImanSoftware.DepLens.Core.xml
+    |       |   |           ImanSoftware.DepLens.Playground.deps.json
+    |       |   |           ImanSoftware.DepLens.Playground.dll
+    |       |   |           ImanSoftware.DepLens.Playground.exe
+    |       |   |           ImanSoftware.DepLens.Playground.pdb
+    |       |   |           ImanSoftware.DepLens.Playground.runtimeconfig.json
+    |       |   |           ImanSoftware.DepLens.Playground.xml
+    |       |   |           ImanSoftware.Extensions.dll
+    |       |   |           ImanSoftware.FileStorage.dll
+    |       |   |           ImanSoftware.Logging.dll
+    |       |   |           ImanSoftware.Outcome.dll
+    |       |   |           Microsoft.Extensions.DependencyInjection.Abstractions.dll
+    |       |   |           Microsoft.Extensions.Logging.Abstractions.dll
+    |       |   |           Microsoft.Extensions.Options.dll
+    |       |   |           Microsoft.Extensions.Primitives.dll
+    |       |   |           
+    |       |   \---Release
+    |       |       \---net10.0
+    |       |               ImanSoftware.DepLens.Abstractions.dll
+    |       |               ImanSoftware.DepLens.Abstractions.pdb
+    |       |               ImanSoftware.DepLens.Abstractions.xml
+    |       |               ImanSoftware.DepLens.Core.dll
+    |       |               ImanSoftware.DepLens.Core.pdb
+    |       |               ImanSoftware.DepLens.Core.xml
+    |       |               ImanSoftware.DepLens.Playground.deps.json
+    |       |               ImanSoftware.DepLens.Playground.dll
+    |       |               ImanSoftware.DepLens.Playground.exe
+    |       |               ImanSoftware.DepLens.Playground.pdb
+    |       |               ImanSoftware.DepLens.Playground.runtimeconfig.json
+    |       |               ImanSoftware.DepLens.Playground.xml
+    |       |               ImanSoftware.Extensions.dll
+    |       |               ImanSoftware.FileStorage.dll
+    |       |               ImanSoftware.Logging.dll
+    |       |               ImanSoftware.Outcome.dll
+    |       |               Microsoft.Extensions.DependencyInjection.Abstractions.dll
+    |       |               Microsoft.Extensions.Logging.Abstractions.dll
+    |       |               Microsoft.Extensions.Options.dll
+    |       |               Microsoft.Extensions.Primitives.dll
+    |       |               
+    |       \---obj
+    |           |   ImanSoftware.DepLens.Playground.csproj.nuget.dgspec.json
+    |           |   ImanSoftware.DepLens.Playground.csproj.nuget.g.props
+    |           |   ImanSoftware.DepLens.Playground.csproj.nuget.g.targets
+    |           |   project.assets.json
+    |           |   project.nuget.cache
+    |           |   
+    |           +---Debug
+    |           |   \---net10.0
+    |           |       |   .NETCoreApp,Version=v10.0.AssemblyAttributes.cs
+    |           |       |   apphost.exe
+    |           |       |   ImanSoft.CFCC2479.Up2Date
+    |           |       |   ImanSoftware.DepLens.Playground.AssemblyInfo.cs
+    |           |       |   ImanSoftware.DepLens.Playground.AssemblyInfoInputs.cache
+    |           |       |   ImanSoftware.DepLens.Playground.assets.cache
+    |           |       |   ImanSoftware.DepLens.Playground.csproj.AssemblyReference.cache
+    |           |       |   ImanSoftware.DepLens.Playground.csproj.BuildWithSkipAnalyzers
+    |           |       |   ImanSoftware.DepLens.Playground.csproj.CoreCompileInputs.cache
+    |           |       |   ImanSoftware.DepLens.Playground.csproj.FileListAbsolute.txt
+    |           |       |   ImanSoftware.DepLens.Playground.dll
+    |           |       |   ImanSoftware.DepLens.Playground.GeneratedMSBuildEditorConfig.editorconfig
+    |           |       |   ImanSoftware.DepLens.Playground.genruntimeconfig.cache
+    |           |       |   ImanSoftware.DepLens.Playground.GlobalUsings.g.cs
+    |           |       |   ImanSoftware.DepLens.Playground.pdb
+    |           |       |   ImanSoftware.DepLens.Playground.sourcelink.json
+    |           |       |   ImanSoftware.DepLens.Playground.xml
+    |           |       |   
+    |           |       +---ref
+    |           |       |       ImanSoftware.DepLens.Playground.dll
+    |           |       |       
+    |           |       \---refint
+    |           |               ImanSoftware.DepLens.Playground.dll
+    |           |               
+    |           \---Release
+    |               \---net10.0
+    |                   |   .NETCoreApp,Version=v10.0.AssemblyAttributes.cs
+    |                   |   apphost.exe
+    |                   |   ImanSoft.CFCC2479.Up2Date
+    |                   |   ImanSoftware.DepLens.Playground.AssemblyInfo.cs
+    |                   |   ImanSoftware.DepLens.Playground.AssemblyInfoInputs.cache
+    |                   |   ImanSoftware.DepLens.Playground.assets.cache
+    |                   |   ImanSoftware.DepLens.Playground.csproj.AssemblyReference.cache
+    |                   |   ImanSoftware.DepLens.Playground.csproj.CoreCompileInputs.cache
+    |                   |   ImanSoftware.DepLens.Playground.csproj.FileListAbsolute.txt
+    |                   |   ImanSoftware.DepLens.Playground.dll
+    |                   |   ImanSoftware.DepLens.Playground.GeneratedMSBuildEditorConfig.editorconfig
+    |                   |   ImanSoftware.DepLens.Playground.genruntimeconfig.cache
+    |                   |   ImanSoftware.DepLens.Playground.GlobalUsings.g.cs
+    |                   |   ImanSoftware.DepLens.Playground.pdb
+    |                   |   ImanSoftware.DepLens.Playground.sourcelink.json
+    |                   |   ImanSoftware.DepLens.Playground.xml
+    |                   |   
+    |                   +---ref
+    |                   |       ImanSoftware.DepLens.Playground.dll
+    |                   |       
+    |                   \---refint
+    |                           ImanSoftware.DepLens.Playground.dll
+    |                           
+    +---tests
+    |   \---ImanSoftware.DepLens.Tests
+    |       |   ImanSoftware.DepLens.Tests.csproj
+    |       |   
+    |       +---bin
+    |       |   +---Debug
+    |       |   |   \---net10.0
+    |       |   |       |   .msCoverageSourceRootsMapping_ImanSoftware.DepLens.Tests
+    |       |   |       |   CoverletSourceRootsMapping_ImanSoftware.DepLens.Tests
+    |       |   |       |   FluentAssertions.dll
+    |       |   |       |   ImanSoftware.DepLens.Abstractions.dll
+    |       |   |       |   ImanSoftware.DepLens.Abstractions.pdb
+    |       |   |       |   ImanSoftware.DepLens.Abstractions.xml
+    |       |   |       |   ImanSoftware.DepLens.Core.dll
+    |       |   |       |   ImanSoftware.DepLens.Core.pdb
+    |       |   |       |   ImanSoftware.DepLens.Core.xml
+    |       |   |       |   ImanSoftware.DepLens.Tests.deps.json
+    |       |   |       |   ImanSoftware.DepLens.Tests.dll
+    |       |   |       |   ImanSoftware.DepLens.Tests.pdb
+    |       |   |       |   ImanSoftware.DepLens.Tests.runtimeconfig.json
+    |       |   |       |   ImanSoftware.DepLens.Tests.xml
+    |       |   |       |   ImanSoftware.Extensions.dll
+    |       |   |       |   ImanSoftware.FileStorage.dll
+    |       |   |       |   ImanSoftware.Logging.dll
+    |       |   |       |   ImanSoftware.Outcome.dll
+    |       |   |       |   Microsoft.Extensions.DependencyInjection.Abstractions.dll
+    |       |   |       |   Microsoft.Extensions.Logging.Abstractions.dll
+    |       |   |       |   Microsoft.Extensions.Options.dll
+    |       |   |       |   Microsoft.Extensions.Primitives.dll
+    |       |   |       |   Microsoft.TestPlatform.CommunicationUtilities.dll
+    |       |   |       |   Microsoft.TestPlatform.CoreUtilities.dll
+    |       |   |       |   Microsoft.TestPlatform.CrossPlatEngine.dll
+    |       |   |       |   Microsoft.TestPlatform.PlatformAbstractions.dll
+    |       |   |       |   Microsoft.TestPlatform.Utilities.dll
+    |       |   |       |   Microsoft.VisualStudio.CodeCoverage.Shim.dll
+    |       |   |       |   Microsoft.VisualStudio.TestPlatform.Common.dll
+    |       |   |       |   Microsoft.VisualStudio.TestPlatform.ObjectModel.dll
+    |       |   |       |   Newtonsoft.Json.dll
+    |       |   |       |   testhost.dll
+    |       |   |       |   testhost.exe
+    |       |   |       |   xunit.abstractions.dll
+    |       |   |       |   xunit.assert.dll
+    |       |   |       |   xunit.core.dll
+    |       |   |       |   xunit.execution.dotnet.dll
+    |       |   |       |   xunit.runner.visualstudio.testadapter.dll
+    |       |   |       |   
+    |       |   |       +---cs
+    |       |   |       |       Microsoft.TestPlatform.CommunicationUtilities.resources.dll
+    |       |   |       |       Microsoft.TestPlatform.CoreUtilities.resources.dll
+    |       |   |       |       Microsoft.TestPlatform.CrossPlatEngine.resources.dll
+    |       |   |       |       Microsoft.VisualStudio.TestPlatform.Common.resources.dll
+    |       |   |       |       Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
+    |       |   |       |       
+    |       |   |       +---de
+    |       |   |       |       Microsoft.TestPlatform.CommunicationUtilities.resources.dll
+    |       |   |       |       Microsoft.TestPlatform.CoreUtilities.resources.dll
+    |       |   |       |       Microsoft.TestPlatform.CrossPlatEngine.resources.dll
+    |       |   |       |       Microsoft.VisualStudio.TestPlatform.Common.resources.dll
+    |       |   |       |       Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
+    |       |   |       |       
+    |       |   |       +---es
+    |       |   |       |       Microsoft.TestPlatform.CommunicationUtilities.resources.dll
+    |       |   |       |       Microsoft.TestPlatform.CoreUtilities.resources.dll
+    |       |   |       |       Microsoft.TestPlatform.CrossPlatEngine.resources.dll
+    |       |   |       |       Microsoft.VisualStudio.TestPlatform.Common.resources.dll
+    |       |   |       |       Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
+    |       |   |       |       
+    |       |   |       +---fr
+    |       |   |       |       Microsoft.TestPlatform.CommunicationUtilities.resources.dll
+    |       |   |       |       Microsoft.TestPlatform.CoreUtilities.resources.dll
+    |       |   |       |       Microsoft.TestPlatform.CrossPlatEngine.resources.dll
+    |       |   |       |       Microsoft.VisualStudio.TestPlatform.Common.resources.dll
+    |       |   |       |       Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
+    |       |   |       |       
+    |       |   |       +---it
+    |       |   |       |       Microsoft.TestPlatform.CommunicationUtilities.resources.dll
+    |       |   |       |       Microsoft.TestPlatform.CoreUtilities.resources.dll
+    |       |   |       |       Microsoft.TestPlatform.CrossPlatEngine.resources.dll
+    |       |   |       |       Microsoft.VisualStudio.TestPlatform.Common.resources.dll
+    |       |   |       |       Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
+    |       |   |       |       
+    |       |   |       +---ja
+    |       |   |       |       Microsoft.TestPlatform.CommunicationUtilities.resources.dll
+    |       |   |       |       Microsoft.TestPlatform.CoreUtilities.resources.dll
+    |       |   |       |       Microsoft.TestPlatform.CrossPlatEngine.resources.dll
+    |       |   |       |       Microsoft.VisualStudio.TestPlatform.Common.resources.dll
+    |       |   |       |       Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
+    |       |   |       |       
+    |       |   |       +---ko
+    |       |   |       |       Microsoft.TestPlatform.CommunicationUtilities.resources.dll
+    |       |   |       |       Microsoft.TestPlatform.CoreUtilities.resources.dll
+    |       |   |       |       Microsoft.TestPlatform.CrossPlatEngine.resources.dll
+    |       |   |       |       Microsoft.VisualStudio.TestPlatform.Common.resources.dll
+    |       |   |       |       Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
+    |       |   |       |       
+    |       |   |       +---pl
+    |       |   |       |       Microsoft.TestPlatform.CommunicationUtilities.resources.dll
+    |       |   |       |       Microsoft.TestPlatform.CoreUtilities.resources.dll
+    |       |   |       |       Microsoft.TestPlatform.CrossPlatEngine.resources.dll
+    |       |   |       |       Microsoft.VisualStudio.TestPlatform.Common.resources.dll
+    |       |   |       |       Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
+    |       |   |       |       
+    |       |   |       +---pt-BR
+    |       |   |       |       Microsoft.TestPlatform.CommunicationUtilities.resources.dll
+    |       |   |       |       Microsoft.TestPlatform.CoreUtilities.resources.dll
+    |       |   |       |       Microsoft.TestPlatform.CrossPlatEngine.resources.dll
+    |       |   |       |       Microsoft.VisualStudio.TestPlatform.Common.resources.dll
+    |       |   |       |       Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
+    |       |   |       |       
+    |       |   |       +---ru
+    |       |   |       |       Microsoft.TestPlatform.CommunicationUtilities.resources.dll
+    |       |   |       |       Microsoft.TestPlatform.CoreUtilities.resources.dll
+    |       |   |       |       Microsoft.TestPlatform.CrossPlatEngine.resources.dll
+    |       |   |       |       Microsoft.VisualStudio.TestPlatform.Common.resources.dll
+    |       |   |       |       Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
+    |       |   |       |       
+    |       |   |       +---tr
+    |       |   |       |       Microsoft.TestPlatform.CommunicationUtilities.resources.dll
+    |       |   |       |       Microsoft.TestPlatform.CoreUtilities.resources.dll
+    |       |   |       |       Microsoft.TestPlatform.CrossPlatEngine.resources.dll
+    |       |   |       |       Microsoft.VisualStudio.TestPlatform.Common.resources.dll
+    |       |   |       |       Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
+    |       |   |       |       
+    |       |   |       +---zh-Hans
+    |       |   |       |       Microsoft.TestPlatform.CommunicationUtilities.resources.dll
+    |       |   |       |       Microsoft.TestPlatform.CoreUtilities.resources.dll
+    |       |   |       |       Microsoft.TestPlatform.CrossPlatEngine.resources.dll
+    |       |   |       |       Microsoft.VisualStudio.TestPlatform.Common.resources.dll
+    |       |   |       |       Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
+    |       |   |       |       
+    |       |   |       \---zh-Hant
+    |       |   |               Microsoft.TestPlatform.CommunicationUtilities.resources.dll
+    |       |   |               Microsoft.TestPlatform.CoreUtilities.resources.dll
+    |       |   |               Microsoft.TestPlatform.CrossPlatEngine.resources.dll
+    |       |   |               Microsoft.VisualStudio.TestPlatform.Common.resources.dll
+    |       |   |               Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
+    |       |   |               
+    |       |   \---Release
+    |       |       \---net10.0
+    |       |           |   .msCoverageSourceRootsMapping_ImanSoftware.DepLens.Tests
+    |       |           |   CoverletSourceRootsMapping_ImanSoftware.DepLens.Tests
+    |       |           |   FluentAssertions.dll
+    |       |           |   ImanSoftware.DepLens.Abstractions.dll
+    |       |           |   ImanSoftware.DepLens.Abstractions.pdb
+    |       |           |   ImanSoftware.DepLens.Abstractions.xml
+    |       |           |   ImanSoftware.DepLens.Core.dll
+    |       |           |   ImanSoftware.DepLens.Core.pdb
+    |       |           |   ImanSoftware.DepLens.Core.xml
+    |       |           |   ImanSoftware.DepLens.Tests.deps.json
+    |       |           |   ImanSoftware.DepLens.Tests.dll
+    |       |           |   ImanSoftware.DepLens.Tests.pdb
+    |       |           |   ImanSoftware.DepLens.Tests.runtimeconfig.json
+    |       |           |   ImanSoftware.DepLens.Tests.xml
+    |       |           |   ImanSoftware.Extensions.dll
+    |       |           |   ImanSoftware.FileStorage.dll
+    |       |           |   ImanSoftware.Logging.dll
+    |       |           |   ImanSoftware.Outcome.dll
+    |       |           |   Microsoft.Extensions.DependencyInjection.Abstractions.dll
+    |       |           |   Microsoft.Extensions.Logging.Abstractions.dll
+    |       |           |   Microsoft.Extensions.Options.dll
+    |       |           |   Microsoft.Extensions.Primitives.dll
+    |       |           |   Microsoft.TestPlatform.CommunicationUtilities.dll
+    |       |           |   Microsoft.TestPlatform.CoreUtilities.dll
+    |       |           |   Microsoft.TestPlatform.CrossPlatEngine.dll
+    |       |           |   Microsoft.TestPlatform.PlatformAbstractions.dll
+    |       |           |   Microsoft.TestPlatform.Utilities.dll
+    |       |           |   Microsoft.VisualStudio.CodeCoverage.Shim.dll
+    |       |           |   Microsoft.VisualStudio.TestPlatform.Common.dll
+    |       |           |   Microsoft.VisualStudio.TestPlatform.ObjectModel.dll
+    |       |           |   Newtonsoft.Json.dll
+    |       |           |   testhost.dll
+    |       |           |   testhost.exe
+    |       |           |   xunit.abstractions.dll
+    |       |           |   xunit.assert.dll
+    |       |           |   xunit.core.dll
+    |       |           |   xunit.execution.dotnet.dll
+    |       |           |   xunit.runner.visualstudio.testadapter.dll
+    |       |           |   
+    |       |           +---cs
+    |       |           |       Microsoft.TestPlatform.CommunicationUtilities.resources.dll
+    |       |           |       Microsoft.TestPlatform.CoreUtilities.resources.dll
+    |       |           |       Microsoft.TestPlatform.CrossPlatEngine.resources.dll
+    |       |           |       Microsoft.VisualStudio.TestPlatform.Common.resources.dll
+    |       |           |       Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
+    |       |           |       
+    |       |           +---de
+    |       |           |       Microsoft.TestPlatform.CommunicationUtilities.resources.dll
+    |       |           |       Microsoft.TestPlatform.CoreUtilities.resources.dll
+    |       |           |       Microsoft.TestPlatform.CrossPlatEngine.resources.dll
+    |       |           |       Microsoft.VisualStudio.TestPlatform.Common.resources.dll
+    |       |           |       Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
+    |       |           |       
+    |       |           +---es
+    |       |           |       Microsoft.TestPlatform.CommunicationUtilities.resources.dll
+    |       |           |       Microsoft.TestPlatform.CoreUtilities.resources.dll
+    |       |           |       Microsoft.TestPlatform.CrossPlatEngine.resources.dll
+    |       |           |       Microsoft.VisualStudio.TestPlatform.Common.resources.dll
+    |       |           |       Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
+    |       |           |       
+    |       |           +---fr
+    |       |           |       Microsoft.TestPlatform.CommunicationUtilities.resources.dll
+    |       |           |       Microsoft.TestPlatform.CoreUtilities.resources.dll
+    |       |           |       Microsoft.TestPlatform.CrossPlatEngine.resources.dll
+    |       |           |       Microsoft.VisualStudio.TestPlatform.Common.resources.dll
+    |       |           |       Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
+    |       |           |       
+    |       |           +---it
+    |       |           |       Microsoft.TestPlatform.CommunicationUtilities.resources.dll
+    |       |           |       Microsoft.TestPlatform.CoreUtilities.resources.dll
+    |       |           |       Microsoft.TestPlatform.CrossPlatEngine.resources.dll
+    |       |           |       Microsoft.VisualStudio.TestPlatform.Common.resources.dll
+    |       |           |       Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
+    |       |           |       
+    |       |           +---ja
+    |       |           |       Microsoft.TestPlatform.CommunicationUtilities.resources.dll
+    |       |           |       Microsoft.TestPlatform.CoreUtilities.resources.dll
+    |       |           |       Microsoft.TestPlatform.CrossPlatEngine.resources.dll
+    |       |           |       Microsoft.VisualStudio.TestPlatform.Common.resources.dll
+    |       |           |       Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
+    |       |           |       
+    |       |           +---ko
+    |       |           |       Microsoft.TestPlatform.CommunicationUtilities.resources.dll
+    |       |           |       Microsoft.TestPlatform.CoreUtilities.resources.dll
+    |       |           |       Microsoft.TestPlatform.CrossPlatEngine.resources.dll
+    |       |           |       Microsoft.VisualStudio.TestPlatform.Common.resources.dll
+    |       |           |       Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
+    |       |           |       
+    |       |           +---pl
+    |       |           |       Microsoft.TestPlatform.CommunicationUtilities.resources.dll
+    |       |           |       Microsoft.TestPlatform.CoreUtilities.resources.dll
+    |       |           |       Microsoft.TestPlatform.CrossPlatEngine.resources.dll
+    |       |           |       Microsoft.VisualStudio.TestPlatform.Common.resources.dll
+    |       |           |       Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
+    |       |           |       
+    |       |           +---pt-BR
+    |       |           |       Microsoft.TestPlatform.CommunicationUtilities.resources.dll
+    |       |           |       Microsoft.TestPlatform.CoreUtilities.resources.dll
+    |       |           |       Microsoft.TestPlatform.CrossPlatEngine.resources.dll
+    |       |           |       Microsoft.VisualStudio.TestPlatform.Common.resources.dll
+    |       |           |       Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
+    |       |           |       
+    |       |           +---ru
+    |       |           |       Microsoft.TestPlatform.CommunicationUtilities.resources.dll
+    |       |           |       Microsoft.TestPlatform.CoreUtilities.resources.dll
+    |       |           |       Microsoft.TestPlatform.CrossPlatEngine.resources.dll
+    |       |           |       Microsoft.VisualStudio.TestPlatform.Common.resources.dll
+    |       |           |       Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
+    |       |           |       
+    |       |           +---tr
+    |       |           |       Microsoft.TestPlatform.CommunicationUtilities.resources.dll
+    |       |           |       Microsoft.TestPlatform.CoreUtilities.resources.dll
+    |       |           |       Microsoft.TestPlatform.CrossPlatEngine.resources.dll
+    |       |           |       Microsoft.VisualStudio.TestPlatform.Common.resources.dll
+    |       |           |       Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
+    |       |           |       
+    |       |           +---zh-Hans
+    |       |           |       Microsoft.TestPlatform.CommunicationUtilities.resources.dll
+    |       |           |       Microsoft.TestPlatform.CoreUtilities.resources.dll
+    |       |           |       Microsoft.TestPlatform.CrossPlatEngine.resources.dll
+    |       |           |       Microsoft.VisualStudio.TestPlatform.Common.resources.dll
+    |       |           |       Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
+    |       |           |       
+    |       |           \---zh-Hant
+    |       |                   Microsoft.TestPlatform.CommunicationUtilities.resources.dll
+    |       |                   Microsoft.TestPlatform.CoreUtilities.resources.dll
+    |       |                   Microsoft.TestPlatform.CrossPlatEngine.resources.dll
+    |       |                   Microsoft.VisualStudio.TestPlatform.Common.resources.dll
+    |       |                   Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll
+    |       |                   
+    |       +---Core
+    |       |   \---Implementation
+    |       |           ParserServiceTests.cs
+    |       |           ProjectReferenceLinkerServiceTests.cs
+    |       |           
+    |       \---obj
+    |           |   ImanSoftware.DepLens.Tests.csproj.nuget.dgspec.json
+    |           |   ImanSoftware.DepLens.Tests.csproj.nuget.g.props
+    |           |   ImanSoftware.DepLens.Tests.csproj.nuget.g.targets
+    |           |   project.assets.json
+    |           |   project.nuget.cache
+    |           |   
+    |           +---Debug
+    |           |   \---net10.0
+    |           |       |   .NETCoreApp,Version=v10.0.AssemblyAttributes.cs
+    |           |       |   ImanSoft.F8C71F81.Up2Date
+    |           |       |   ImanSoftware.DepLens.Tests.AssemblyInfo.cs
+    |           |       |   ImanSoftware.DepLens.Tests.AssemblyInfoInputs.cache
+    |           |       |   ImanSoftware.DepLens.Tests.assets.cache
+    |           |       |   ImanSoftware.DepLens.Tests.csproj.AssemblyReference.cache
+    |           |       |   ImanSoftware.DepLens.Tests.csproj.CoreCompileInputs.cache
+    |           |       |   ImanSoftware.DepLens.Tests.csproj.FileListAbsolute.txt
+    |           |       |   ImanSoftware.DepLens.Tests.dll
+    |           |       |   ImanSoftware.DepLens.Tests.GeneratedMSBuildEditorConfig.editorconfig
+    |           |       |   ImanSoftware.DepLens.Tests.genruntimeconfig.cache
+    |           |       |   ImanSoftware.DepLens.Tests.GlobalUsings.g.cs
+    |           |       |   ImanSoftware.DepLens.Tests.pdb
+    |           |       |   ImanSoftware.DepLens.Tests.sourcelink.json
+    |           |       |   ImanSoftware.DepLens.Tests.xml
+    |           |       |   
+    |           |       +---ref
+    |           |       |       ImanSoftware.DepLens.Tests.dll
+    |           |       |       
+    |           |       \---refint
+    |           |               ImanSoftware.DepLens.Tests.dll
+    |           |               
+    |           \---Release
+    |               \---net10.0
+    |                   |   .NETCoreApp,Version=v10.0.AssemblyAttributes.cs
+    |                   |   ImanSoft.F8C71F81.Up2Date
+    |                   |   ImanSoftware.DepLens.Tests.AssemblyInfo.cs
+    |                   |   ImanSoftware.DepLens.Tests.AssemblyInfoInputs.cache
+    |                   |   ImanSoftware.DepLens.Tests.assets.cache
+    |                   |   ImanSoftware.DepLens.Tests.csproj.AssemblyReference.cache
+    |                   |   ImanSoftware.DepLens.Tests.csproj.CoreCompileInputs.cache
+    |                   |   ImanSoftware.DepLens.Tests.csproj.FileListAbsolute.txt
+    |                   |   ImanSoftware.DepLens.Tests.dll
+    |                   |   ImanSoftware.DepLens.Tests.GeneratedMSBuildEditorConfig.editorconfig
+    |                   |   ImanSoftware.DepLens.Tests.genruntimeconfig.cache
+    |                   |   ImanSoftware.DepLens.Tests.GlobalUsings.g.cs
+    |                   |   ImanSoftware.DepLens.Tests.pdb
+    |                   |   ImanSoftware.DepLens.Tests.sourcelink.json
+    |                   |   ImanSoftware.DepLens.Tests.xml
+    |                   |   
+    |                   +---ref
+    |                   |       ImanSoftware.DepLens.Tests.dll
+    |                   |       
+    |                   \---refint
+    |                           ImanSoftware.DepLens.Tests.dll
+    |                           
+    \---UI
+        \---ImanSoftware.DepLens.Cli
+            |   icon.png
+            |   ImanSoftware.DepLens.Cli.csproj
+            |   Program.cs
+            |   publish.bat
+            |   README.md
+            |   
+            +---bin
+            |   +---Debug
+            |   |   \---net10.0
+            |   |       |   ImanSoftware.DepLens.Abstractions.dll
+            |   |       |   ImanSoftware.DepLens.Abstractions.pdb
+            |   |       |   ImanSoftware.DepLens.Abstractions.xml
+            |   |       |   ImanSoftware.DepLens.Cli.deps.json
+            |   |       |   ImanSoftware.DepLens.Cli.dll
+            |   |       |   ImanSoftware.DepLens.Cli.exe
+            |   |       |   ImanSoftware.DepLens.Cli.pdb
+            |   |       |   ImanSoftware.DepLens.Cli.runtimeconfig.json
+            |   |       |   ImanSoftware.DepLens.Cli.xml
+            |   |       |   ImanSoftware.DepLens.Core.dll
+            |   |       |   ImanSoftware.DepLens.Core.pdb
+            |   |       |   ImanSoftware.DepLens.Core.xml
+            |   |       |   ImanSoftware.Extensions.dll
+            |   |       |   ImanSoftware.FileStorage.dll
+            |   |       |   ImanSoftware.Logging.dll
+            |   |       |   ImanSoftware.Outcome.dll
+            |   |       |   Microsoft.Extensions.DependencyInjection.Abstractions.dll
+            |   |       |   Microsoft.Extensions.Logging.Abstractions.dll
+            |   |       |   Microsoft.Extensions.Options.dll
+            |   |       |   Microsoft.Extensions.Primitives.dll
+            |   |       |   Spectre.Console.Ansi.dll
+            |   |       |   Spectre.Console.Cli.dll
+            |   |       |   Spectre.Console.dll
+            |   |       |   
+            |   |       +---cs
+            |   |       +---de
+            |   |       |       Spectre.Console.Cli.resources.dll
+            |   |       |       
+            |   |       +---es
+            |   |       |       Spectre.Console.Cli.resources.dll
+            |   |       |       
+            |   |       +---fr
+            |   |       |       Spectre.Console.Cli.resources.dll
+            |   |       |       
+            |   |       +---it
+            |   |       |       Spectre.Console.Cli.resources.dll
+            |   |       |       
+            |   |       +---ja
+            |   |       |       Spectre.Console.Cli.resources.dll
+            |   |       |       
+            |   |       +---ko
+            |   |       |       Spectre.Console.Cli.resources.dll
+            |   |       |       
+            |   |       +---pl
+            |   |       +---pt
+            |   |       |       Spectre.Console.Cli.resources.dll
+            |   |       |       
+            |   |       +---pt-BR
+            |   |       +---ru
+            |   |       |       Spectre.Console.Cli.resources.dll
+            |   |       |       
+            |   |       +---sv
+            |   |       |       Spectre.Console.Cli.resources.dll
+            |   |       |       
+            |   |       +---tr
+            |   |       +---zh-Hans
+            |   |       |       Spectre.Console.Cli.resources.dll
+            |   |       |       
+            |   |       \---zh-Hant
+            |   \---Release
+            |       \---net10.0
+            |           |   ImanSoftware.DepLens.Abstractions.dll
+            |           |   ImanSoftware.DepLens.Abstractions.pdb
+            |           |   ImanSoftware.DepLens.Abstractions.xml
+            |           |   ImanSoftware.DepLens.Cli.deps.json
+            |           |   ImanSoftware.DepLens.Cli.dll
+            |           |   ImanSoftware.DepLens.Cli.exe
+            |           |   ImanSoftware.DepLens.Cli.pdb
+            |           |   ImanSoftware.DepLens.Cli.runtimeconfig.json
+            |           |   ImanSoftware.DepLens.Cli.xml
+            |           |   ImanSoftware.DepLens.Core.dll
+            |           |   ImanSoftware.DepLens.Core.pdb
+            |           |   ImanSoftware.DepLens.Core.xml
+            |           |   ImanSoftware.Extensions.dll
+            |           |   ImanSoftware.FileStorage.dll
+            |           |   ImanSoftware.Logging.dll
+            |           |   ImanSoftware.Outcome.dll
+            |           |   Microsoft.Extensions.DependencyInjection.Abstractions.dll
+            |           |   Microsoft.Extensions.Logging.Abstractions.dll
+            |           |   Microsoft.Extensions.Options.dll
+            |           |   Microsoft.Extensions.Primitives.dll
+            |           |   Spectre.Console.Ansi.dll
+            |           |   Spectre.Console.Cli.dll
+            |           |   Spectre.Console.dll
+            |           |   
+            |           +---de
+            |           |       Spectre.Console.Cli.resources.dll
+            |           |       
+            |           +---es
+            |           |       Spectre.Console.Cli.resources.dll
+            |           |       
+            |           +---fr
+            |           |       Spectre.Console.Cli.resources.dll
+            |           |       
+            |           +---it
+            |           |       Spectre.Console.Cli.resources.dll
+            |           |       
+            |           +---ja
+            |           |       Spectre.Console.Cli.resources.dll
+            |           |       
+            |           +---ko
+            |           |       Spectre.Console.Cli.resources.dll
+            |           |       
+            |           +---pt
+            |           |       Spectre.Console.Cli.resources.dll
+            |           |       
+            |           +---publish
+            |           |   |   ImanSoftware.DepLens.Abstractions.dll
+            |           |   |   ImanSoftware.DepLens.Abstractions.pdb
+            |           |   |   ImanSoftware.DepLens.Abstractions.xml
+            |           |   |   ImanSoftware.DepLens.Cli.deps.json
+            |           |   |   ImanSoftware.DepLens.Cli.dll
+            |           |   |   ImanSoftware.DepLens.Cli.exe
+            |           |   |   ImanSoftware.DepLens.Cli.pdb
+            |           |   |   ImanSoftware.DepLens.Cli.runtimeconfig.json
+            |           |   |   ImanSoftware.DepLens.Cli.xml
+            |           |   |   ImanSoftware.DepLens.Core.dll
+            |           |   |   ImanSoftware.DepLens.Core.pdb
+            |           |   |   ImanSoftware.DepLens.Core.xml
+            |           |   |   ImanSoftware.Extensions.dll
+            |           |   |   ImanSoftware.FileStorage.dll
+            |           |   |   ImanSoftware.Logging.dll
+            |           |   |   ImanSoftware.Outcome.dll
+            |           |   |   Microsoft.Extensions.DependencyInjection.Abstractions.dll
+            |           |   |   Microsoft.Extensions.Logging.Abstractions.dll
+            |           |   |   Microsoft.Extensions.Options.dll
+            |           |   |   Microsoft.Extensions.Primitives.dll
+            |           |   |   Spectre.Console.Ansi.dll
+            |           |   |   Spectre.Console.Cli.dll
+            |           |   |   Spectre.Console.dll
+            |           |   |   
+            |           |   +---de
+            |           |   |       Spectre.Console.Cli.resources.dll
+            |           |   |       
+            |           |   +---es
+            |           |   |       Spectre.Console.Cli.resources.dll
+            |           |   |       
+            |           |   +---fr
+            |           |   |       Spectre.Console.Cli.resources.dll
+            |           |   |       
+            |           |   +---it
+            |           |   |       Spectre.Console.Cli.resources.dll
+            |           |   |       
+            |           |   +---ja
+            |           |   |       Spectre.Console.Cli.resources.dll
+            |           |   |       
+            |           |   +---ko
+            |           |   |       Spectre.Console.Cli.resources.dll
+            |           |   |       
+            |           |   +---pt
+            |           |   |       Spectre.Console.Cli.resources.dll
+            |           |   |       
+            |           |   +---ru
+            |           |   |       Spectre.Console.Cli.resources.dll
+            |           |   |       
+            |           |   +---sv
+            |           |   |       Spectre.Console.Cli.resources.dll
+            |           |   |       
+            |           |   \---zh-Hans
+            |           |           Spectre.Console.Cli.resources.dll
+            |           |           
+            |           +---ru
+            |           |       Spectre.Console.Cli.resources.dll
+            |           |       
+            |           +---sv
+            |           |       Spectre.Console.Cli.resources.dll
+            |           |       
+            |           \---zh-Hans
+            |                   Spectre.Console.Cli.resources.dll
+            |                   
+            +---Commands
+            |   \---Analyze
+            |           AnalyzeCommand.cs
+            |           AnalyzeSettings.cs
+            |           
+            +---Helpers
+            |       ConsoleWriter.cs
+            |       
+            +---obj
+            |   |   ImanSoftware.DepLens.Cli.csproj.nuget.dgspec.json
+            |   |   ImanSoftware.DepLens.Cli.csproj.nuget.g.props
+            |   |   ImanSoftware.DepLens.Cli.csproj.nuget.g.targets
+            |   |   project.assets.json
+            |   |   project.nuget.cache
+            |   |   
+            |   +---Debug
+            |   |   \---net10.0
+            |   |       |   .NETCoreApp,Version=v10.0.AssemblyAttributes.cs
+            |   |       |   apphost.exe
+            |   |       |   ImanSoft.3828811A.Up2Date
+            |   |       |   ImanSoftware.DepLens.Cli.AssemblyInfo.cs
+            |   |       |   ImanSoftware.DepLens.Cli.AssemblyInfoInputs.cache
+            |   |       |   ImanSoftware.DepLens.Cli.assets.cache
+            |   |       |   ImanSoftware.DepLens.Cli.csproj.AssemblyReference.cache
+            |   |       |   ImanSoftware.DepLens.Cli.csproj.CoreCompileInputs.cache
+            |   |       |   ImanSoftware.DepLens.Cli.csproj.FileListAbsolute.txt
+            |   |       |   ImanSoftware.DepLens.Cli.dll
+            |   |       |   ImanSoftware.DepLens.Cli.GeneratedMSBuildEditorConfig.editorconfig
+            |   |       |   ImanSoftware.DepLens.Cli.genruntimeconfig.cache
+            |   |       |   ImanSoftware.DepLens.Cli.GlobalUsings.g.cs
+            |   |       |   ImanSoftware.DepLens.Cli.pdb
+            |   |       |   ImanSoftware.DepLens.Cli.sourcelink.json
+            |   |       |   ImanSoftware.DepLens.Cli.xml
+            |   |       |   
+            |   |       +---ref
+            |   |       |       ImanSoftware.DepLens.Cli.dll
+            |   |       |       
+            |   |       \---refint
+            |   |               ImanSoftware.DepLens.Cli.dll
+            |   |               
+            |   \---Release
+            |       |   ImanSoftware.DepLens.Cli.1.0.0.nuspec
+            |       |   ImanSoftware.DepLens.Cli.1.0.0.symbols.nuspec
+            |       |   ImanSoftware.DepLens.Cli.1.0.1.nuspec
+            |       |   ImanSoftware.DepLens.Cli.1.0.1.symbols.nuspec
+            |       |   ImanSoftware.DepLens.Cli.1.1.0.nuspec
+            |       |   ImanSoftware.DepLens.Cli.1.1.0.symbols.nuspec
+            |       |   
+            |       \---net10.0
+            |           |   .NETCoreApp,Version=v10.0.AssemblyAttributes.cs
+            |           |   apphost.exe
+            |           |   DotnetToolSettings.xml
+            |           |   ImanSoft.3828811A.Up2Date
+            |           |   ImanSoftware.DepLens.Cli.AssemblyInfo.cs
+            |           |   ImanSoftware.DepLens.Cli.AssemblyInfoInputs.cache
+            |           |   ImanSoftware.DepLens.Cli.assets.cache
+            |           |   ImanSoftware.DepLens.Cli.csproj.AssemblyReference.cache
+            |           |   ImanSoftware.DepLens.Cli.csproj.CoreCompileInputs.cache
+            |           |   ImanSoftware.DepLens.Cli.csproj.FileListAbsolute.txt
+            |           |   ImanSoftware.DepLens.Cli.deps.json
+            |           |   ImanSoftware.DepLens.Cli.dll
+            |           |   ImanSoftware.DepLens.Cli.GeneratedMSBuildEditorConfig.editorconfig
+            |           |   ImanSoftware.DepLens.Cli.genpublishdeps.cache
+            |           |   ImanSoftware.DepLens.Cli.genruntimeconfig.cache
+            |           |   ImanSoftware.DepLens.Cli.GlobalUsings.g.cs
+            |           |   ImanSoftware.DepLens.Cli.pdb
+            |           |   ImanSoftware.DepLens.Cli.sourcelink.json
+            |           |   ImanSoftware.DepLens.Cli.toolssettingsinput.cache
+            |           |   ImanSoftware.DepLens.Cli.xml
+            |           |   PublishOutputs.5f00fe2b30.txt
+            |           |   
+            |           +---ref
+            |           |       ImanSoftware.DepLens.Cli.dll
+            |           |       
+            |           \---refint
+            |                   ImanSoftware.DepLens.Cli.dll
+            |                   
+            \---Properties
+                \---PublishProfiles
+
+``` 
+
+
+### tree-view 
+
+```batch 
+tree /F /A  > tree-view-result.txt
 ``` 
 
 
@@ -3248,6 +4746,84 @@ catch (Exception ex)
 }
 
 ``` 
+
+
+### src > UI > ImanSoftware.DepLens.Cli > publish 
+
+```batch 
+@echo off
+setlocal
+
+rem Auto-detect the project name from the folder this file lives in
+for %%I in ("%~dp0.") do set "PROJECT_NAME=%%~nxI"
+
+echo ==^> Publishing %PROJECT_NAME% ...
+
+powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0..\..\..\publish.ps1" -ProjectName "%PROJECT_NAME%"
+echo.
+echo ==^> Done. Press any key to close this window...
+pause >nul
+endlocal
+
+``` 
+
+
+### src > UI > ImanSoftware.DepLens.Cli > README 
+
+````markdown 
+# DepLens CLI
+
+**Analyze a .NET codebase — one or many solutions — and get an interactive dependency graph as a single HTML file.**
+
+![DepLens interactive dependency report - graph sample 2](https://raw.githubusercontent.com/ImanEstiri/DepLens/main/docs/images/graph-sample-1.gif)
+
+`deplens` is the command-line front end for [DepLens](https://github.com/ImanEstiri/DepLens), a dependency-analysis engine for .NET codebases. It scans a directory for `.sln` / `.slnx` files and `.csproj` projects, resolves Central Package Management versions, and produces a self-contained HTML report you can open in any browser — no server, no restore step.
+
+## Installation and verify
+
+Requires the **.NET 10** runtime.
+
+```bash
+dotnet tool install --global imansoftware.depLens.cli
+```
+Then
+```bash
+deplens --version
+```
+![DepLens interactive dependency report](https://raw.githubusercontent.com/ImanEstiri/DepLens/main/docs/images/installation-and-verify.gif)
+
+## Usage
+
+```bash
+deplens analyze
+```
+
+Point it at a specific folder (it must be a directory, not a `.sln` or `.csproj` file), and optionally choose where the report is written:
+
+```bash
+deplens analyze "C:\Projects\MyApp" --output ".\reports"
+```
+![DepLens interactive dependency report - usage sample](https://raw.githubusercontent.com/ImanEstiri/DepLens/main/docs/images/usage.gif)
+Then open the generated `dependency-graph.html` in a browser.
+![DepLens interactive dependency report - graph sample 2](https://raw.githubusercontent.com/ImanEstiri/DepLens/main/docs/images/graph-sample-2.gif)
+
+## What you get
+
+- A package-level dependency graph and a solution-architecture view, in one report
+- Solutions grouped visually, including projects shared across solutions
+- Central Package Management resolved per project, with the version source (explicit, central, or override) shown
+- A tree sidebar that stays in sync with the graph — click either one to explore
+
+## Learn more
+
+Full documentation, known limitations, the roadmap, and how to build from source or contribute all live in the main repository:
+
+**[github.com/ImanEstiri/DepLens](https://github.com/ImanEstiri/DepLens)**
+
+## License
+
+MIT — see [LICENSE](https://github.com/ImanEstiri/DepLens/blob/main/LICENSE.txt).
+```` 
 
 
 ### src > UI > ImanSoftware.DepLens.Cli > Commands > Analyze > AnalyzeCommand 

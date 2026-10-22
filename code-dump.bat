@@ -14,6 +14,12 @@ set "C_XAML=%ESC%[94m"
 set "C_JSON=%ESC%[90m"
 set "C_CONFIG=%ESC%[90m"
 set "C_PROJ=%ESC%[90m"
+set "C_ASPX=%ESC%[94m"
+set "C_SQL=%ESC%[96m"
+set "C_MD=%ESC%[91m"
+set "C_BAT=%ESC%[33m"
+set "C_PS=%ESC%[34m"
+set "C_TEXT=%ESC%[37m"
 set "C_OTHER=%ESC%[37m"
 set "C_HEAD=%ESC%[97m"
 set "C_OK=%ESC%[92m"
@@ -22,8 +28,9 @@ REM ===================== تنظیمات =====================
 set "ROOT=%~dp0"
 set "ROOT=%ROOT:~0,-1%"
 set "OUT=%ROOT%\code-dump-result.md"
+set "SELF=%~f0"
 
-set "EXTENSIONS=.razor .css .cs .js .ts .html .cshtml .json .scss .less .xaml .config .csproj"
+set "EXTENSIONS=.razor .css .cs .js .ts .html .cshtml .json .scss .less .xaml .config .csproj .aspx .master .sql .txt .text .md .bat .ps1"
 set "EXCLUDE_DIRS=\bin\ \obj\ \node_modules\ \.git\ \.vs\ \.idea\ \wwwroot\lib\"
 set "GT=>"
 
@@ -38,6 +45,12 @@ set /a CNT_XAML=0
 set /a CNT_JSON=0
 set /a CNT_CONFIG=0
 set /a CNT_PROJ=0
+set /a CNT_ASPX=0
+set /a CNT_SQL=0
+set /a CNT_MD=0
+set /a CNT_BAT=0
+set /a CNT_PS=0
+set /a CNT_TEXT=0
 set /a CNT_OTHER=0
 
 REM ===================== شروع =====================
@@ -53,6 +66,10 @@ for /r "%ROOT%" %%F in (*) do (
     set "SKIP=0"
     set "FULLPATH=%%F"
     set "EXT=%%~xF"
+
+    REM -------- فایل خروجی و خود اسکریپت نباید وارد دامپ شوند --------
+    if /I "!FULLPATH!"=="%OUT%" set "SKIP=1"
+    if /I "!FULLPATH!"=="%SELF%" set "SKIP=1"
 
     for %%D in (%EXCLUDE_DIRS%) do (
         if not "!FULLPATH:%%D=!"=="!FULLPATH!" set "SKIP=1"
@@ -70,6 +87,7 @@ for /r "%ROOT%" %%F in (*) do (
             set "CATLABEL=OTHER "
             set "CLR=%C_OTHER%"
             set "LANG="
+            set "FENCE=```"
             if /I "!EXT!"==".cs"      (set "CATID=CS"     & set "CATLABEL=C#    " & set "CLR=%C_CS%"    & set "LANG=csharp")
             if /I "!EXT!"==".razor"   (set "CATID=RAZOR"  & set "CATLABEL=RAZOR " & set "CLR=%C_RAZOR%" & set "LANG=razor")
             if /I "!EXT!"==".cshtml"  (set "CATID=RAZOR"  & set "CATLABEL=RAZOR " & set "CLR=%C_RAZOR%" & set "LANG=cshtml")
@@ -83,6 +101,14 @@ for /r "%ROOT%" %%F in (*) do (
             if /I "!EXT!"==".json"    (set "CATID=JSON"   & set "CATLABEL=JSON  " & set "CLR=%C_JSON%"  & set "LANG=json")
             if /I "!EXT!"==".config"  (set "CATID=CONFIG" & set "CATLABEL=CONFIG" & set "CLR=%C_CONFIG%"& set "LANG=xml")
             if /I "!EXT!"==".csproj"  (set "CATID=PROJ"   & set "CATLABEL=PROJ  " & set "CLR=%C_PROJ%"  & set "LANG=xml")
+            if /I "!EXT!"==".aspx"    (set "CATID=ASPX"   & set "CATLABEL=ASPX  " & set "CLR=%C_ASPX%"  & set "LANG=aspnet")
+            if /I "!EXT!"==".master"  (set "CATID=ASPX"   & set "CATLABEL=MASTER" & set "CLR=%C_ASPX%"  & set "LANG=aspnet")
+            if /I "!EXT!"==".sql"     (set "CATID=SQL"    & set "CATLABEL=SQL   " & set "CLR=%C_SQL%"   & set "LANG=sql")
+            if /I "!EXT!"==".md"      (set "CATID=MD"     & set "CATLABEL=MD    " & set "CLR=%C_MD%"    & set "LANG=markdown" & set "FENCE=````")
+            if /I "!EXT!"==".bat"     (set "CATID=BAT"    & set "CATLABEL=BAT   " & set "CLR=%C_BAT%"   & set "LANG=batch")
+            if /I "!EXT!"==".ps1"     (set "CATID=PS"     & set "CATLABEL=PS1   " & set "CLR=%C_PS%"    & set "LANG=powershell")
+            if /I "!EXT!"==".txt"     (set "CATID=TEXT"   & set "CATLABEL=TXT   " & set "CLR=%C_TEXT%"  & set "LANG=text")
+            if /I "!EXT!"==".text"    (set "CATID=TEXT"   & set "CATLABEL=TEXT  " & set "CLR=%C_TEXT%"  & set "LANG=text")
 
             set /a TOTAL+=1
             set /a "CNT_!CATID!+=1"
@@ -101,16 +127,17 @@ for /r "%ROOT%" %%F in (*) do (
                 set "DISPLAY=%%~nF"
             )
 
-            REM -------- لاگ رنگی توی کنسول (وارد فایل txt نمی‌شود) --------
+            REM -------- لاگ رنگی توی کنسول (وارد فایل خروجی نمی‌شود) --------
             echo !CLR![!NUMPAD!] [!CATLABEL!] !DISPLAY!!C_RESET!
 
             REM -------- نوشتن محتوا در فایل خروجی (Markdown) --------
+            REM برای فایل‌های md از ۴ بک‌تیک استفاده می‌شود تا بلاک کد خراب نشود
             echo ### !DISPLAY! >> "%OUT%"
             echo(>> "%OUT%"
-            echo ```!LANG! >> "%OUT%"
+            echo !FENCE!!LANG! >> "%OUT%"
             type "%%F" >> "%OUT%"
             echo(>> "%OUT%"
-            echo ``` >> "%OUT%"
+            echo !FENCE! >> "%OUT%"
             echo(>> "%OUT%"
             echo(>> "%OUT%"
         )
@@ -130,6 +157,12 @@ if !CNT_XAML!   GTR 0 echo %C_XAML%   XAML   : !CNT_XAML!%C_RESET%
 if !CNT_JSON!   GTR 0 echo %C_JSON%   JSON   : !CNT_JSON!%C_RESET%
 if !CNT_CONFIG! GTR 0 echo %C_CONFIG%   CONFIG : !CNT_CONFIG!%C_RESET%
 if !CNT_PROJ!   GTR 0 echo %C_PROJ%   PROJ   : !CNT_PROJ!%C_RESET%
+if !CNT_ASPX!   GTR 0 echo %C_ASPX%   ASPX   : !CNT_ASPX!%C_RESET%
+if !CNT_SQL!    GTR 0 echo %C_SQL%   SQL    : !CNT_SQL!%C_RESET%
+if !CNT_MD!     GTR 0 echo %C_MD%   MD     : !CNT_MD!%C_RESET%
+if !CNT_BAT!    GTR 0 echo %C_BAT%   BAT    : !CNT_BAT!%C_RESET%
+if !CNT_PS!     GTR 0 echo %C_PS%   PS1    : !CNT_PS!%C_RESET%
+if !CNT_TEXT!   GTR 0 echo %C_TEXT%   TEXT   : !CNT_TEXT!%C_RESET%
 if !CNT_OTHER!  GTR 0 echo %C_OTHER%   OTHER  : !CNT_OTHER!%C_RESET%
 echo %C_HEAD%------------------------------------------------------------%C_RESET%
 echo %C_OK% Total files : !TOTAL!%C_RESET%
